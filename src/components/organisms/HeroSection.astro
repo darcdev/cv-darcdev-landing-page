@@ -1,0 +1,52 @@
+---
+import HeroShapes from '../molecules/HeroShapes.astro';
+import AvatarSVG from '../molecules/AvatarSVG.astro';
+import HeroSocial from '../molecules/HeroSocial.astro';
+import StripMarquee from '../molecules/StripMarquee.astro';
+import Button from '../atoms/Button.astro';
+import StatusPill from '../atoms/StatusPill.astro';
+import Icon from '../atoms/Icon.astro';
+import DotGridBg from '../islands/DotGridBg';
+import Terminal from '../islands/Terminal';
+---
+
+<section id="home" class="hero" data-screen-label="01 hero">
+  <DotGridBg client:load />
+  <HeroShapes />
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow"><span class="idx">01</span> · Tech Lead · Bogotá</div>
+        <h1 class="hero-headline" style="margin-top: 22px;">
+          Construyo<br/>
+          <span class="underline">agentes</span> que llevan<br/>
+          la IA a producto real.
+        </h1>
+        <p class="hero-sub">
+          7+ años liderando full-stack para gobierno y empresa privada.
+          Hoy aplico RAG, MCP y Spec-Driven Development al ciclo de
+          desarrollo — desde la arquitectura hasta el commit.
+        </p>
+        <div class="hero-meta">
+          <Button variant="primary" href="#projects">
+            Ver proyectos
+            <Icon name="arrow" size={14} />
+          </Button>
+          <Button variant="outline" href="#contact">
+            Hablemos
+          </Button>
+          <StatusPill>
+            Disponible Q3/Q4 2026
+          </StatusPill>
+        </div>
+      </div>
+      <div class="hero-side">
+        <AvatarSVG />
+        <HeroSocial />
+      </div>
+    </div>
+
+    <Terminal client:visible />
+  </div>
+  <StripMarquee />
+</section>

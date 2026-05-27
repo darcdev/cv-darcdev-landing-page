@@ -1,0 +1,23 @@
+---
+interface Props {
+  role: string;
+  company: string;
+  location: string;
+  period: string;
+  highlights: string[];
+  current?: boolean;
+}
+
+const { role, company, location, period, highlights, current = false } = Astro.props;
+---
+
+<div class={`tl-item ${current ? 'now' : ''}`}>
+  <div class="tl-head">
+    <div class="tl-role">{role}</div>
+    <div class="tl-period">{period}</div>
+  </div>
+  <div class="tl-company">{company} · {location}</div>
+  <ul class="tl-list">
+    {highlights.map((h) => <li>{h}</li>)}
+  </ul>
+</div>

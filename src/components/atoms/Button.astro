@@ -1,0 +1,22 @@
+---
+interface Props {
+  variant?: 'primary' | 'outline' | 'ghost';
+  href?: string;
+  download?: string;
+  class?: string;
+}
+
+const { variant = 'primary', href, download, class: className = '' } = Astro.props;
+const Tag = href ? 'a' : 'button';
+const baseClass = `btn btn-${variant} ${className}`.trim();
+---
+
+<Tag 
+  class={baseClass}
+  href={href}
+  download={download}
+  target={href?.startsWith('http') ? '_blank' : undefined}
+  rel={href?.startsWith('http') ? 'noreferrer' : undefined}
+>
+  <slot />
+</Tag>

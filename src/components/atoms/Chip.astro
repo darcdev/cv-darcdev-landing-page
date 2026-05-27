@@ -1,0 +1,12 @@
+---
+interface Props {
+  active?: boolean;
+  class?: string;
+}
+
+const { active = false, class: className = '' } = Astro.props;
+---
+
+<button class={`chip ${active ? 'active' : ''} ${className}`.trim()}>
+  <slot />
+</button>

@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/organisms/HeroSection.astro';
+import AboutSection from '../components/organisms/AboutSection.astro';
+import ContactSection from '../components/organisms/ContactSection.astro';
+import AskSection from '../components/organisms/AskSection.astro';
+import ProjectsSection from '../components/islands/ProjectsSection';
+import BlogSection from '../components/islands/BlogSection';
+---
+
+<BaseLayout>
+  <HeroSection />
+  <AboutSection />
+  <ProjectsSection client:visible />
+  <BlogSection client:visible />
+  <AskSection />
+  <ContactSection />
+</BaseLayout>

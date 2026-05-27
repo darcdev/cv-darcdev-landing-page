@@ -1,0 +1,15 @@
+---
+type CoverKind = 'rag' | 'spec' | 'mcp' | 'arch' | 'oss' | 'pr';
+
+interface Props {
+  kind: CoverKind;
+  label?: string;
+  class?: string;
+}
+
+const { kind, label, class: className = '' } = Astro.props;
+---
+
+<div class={`cover cover-${kind} ${className}`.trim()}>
+  {label && <div class="cover-svg-label">{label}</div>}
+</div>

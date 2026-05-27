@@ -1,0 +1,16 @@
+---
+const items = [
+  "RAG", "LANGCHAIN", "MCP", "AGENT SKILLS", "SPEC-DRIVEN DEV",
+  "WEAVIATE", ".NET CORE", "SPRING BOOT", "ANGULAR", "REACT", "TYPESCRIPT",
+  "OPEN SOURCE", "MICROSERVICIOS", "ORACLE", "POSTGRESQL",
+];
+const doubled = [...items, ...items];
+---
+
+<div class="strip">
+  <div class="strip-track">
+    {doubled.map((s) => (
+      <span>{s}<span class="dot">◆</span></span>
+    ))}
+  </div>
+</div>

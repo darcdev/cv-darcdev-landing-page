@@ -1,0 +1,13 @@
+---
+interface Props {
+  pulse?: boolean;
+  class?: string;
+}
+
+const { pulse = true, class: className = '' } = Astro.props;
+---
+
+<span class={`status-pill ${className}`.trim()}>
+  {pulse && <span class="pulse"></span>}
+  <slot />
+</span>

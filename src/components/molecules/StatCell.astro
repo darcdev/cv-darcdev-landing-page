@@ -1,0 +1,14 @@
+---
+interface Props {
+  number: string;
+  label: string;
+  mono?: boolean;
+}
+
+const { number, label, mono = false } = Astro.props;
+---
+
+<div class="stat-cell">
+  <div class="n" style={mono ? "font-family: var(--font-mono)" : ""}>{number}</div>
+  <div class="l">{label}</div>
+</div>
