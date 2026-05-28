@@ -1,4 +1,5 @@
 ---
+import avatarImage from "../../assets/images/foto-perfil.png";
 ---
 
 <div class="avatar-wrap">
@@ -8,75 +9,114 @@
   <div class="avatar-badge avatar-badge-2">
     {"</>"} RAG · MCP
   </div>
-  <div class="avatar-badge avatar-badge-3">
-    AI · TECH LEAD
+  <div class="avatar-badge avatar-badge-3">AI · TECH LEAD</div>
+
+  <img
+    src={avatarImage.src}
+    alt="Avatar de Diego"
+    class="avatar-svg avatar-photo"
+    loading="eager"
+  />
+
+  <div class="av-chip-photo">
+    <span>{"{ai}"}</span>
   </div>
-
-  <svg class="avatar-svg" viewBox="0 0 240 280" xmlns="http://www.w3.org/2000/svg" aria-label="Avatar de Diego">
-    <defs>
-      <clipPath id="avClip">
-        <circle cx="120" cy="130" r="115" />
-      </clipPath>
-      <linearGradient id="avBg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.18" />
-        <stop offset="100%" stop-color="var(--paper)" stop-opacity="0.5" />
-      </linearGradient>
-    </defs>
-
-    <circle cx="120" cy="130" r="115" fill="url(#avBg)" stroke="var(--ink)" stroke-width="2" />
-
-    <g clip-path="url(#avClip)">
-      <path
-        d="M30 280 L30 220 Q30 200 60 195 L90 188 Q120 215 150 188 L180 195 Q210 200 210 220 L210 280 Z"
-        fill="var(--ink)"
-      />
-      <path d="M95 195 L120 215 L145 195 L138 220 L120 232 L102 220 Z" fill="var(--accent)" opacity="0.9" />
-
-      <rect x="105" y="170" width="30" height="28" rx="6" fill="#E0B998" />
-
-      <g class="av-head">
-        <ellipse cx="120" cy="125" rx="56" ry="62" fill="#EFC7A4" />
-
-        <path
-          d="M70 110 Q72 70 120 65 Q170 70 172 112 Q165 96 145 92 Q132 100 120 96 Q108 100 95 92 Q75 96 70 110 Z"
-          fill="var(--ink)"
-        />
-
-        <ellipse cx="65" cy="130" rx="6" ry="9" fill="#E0B998" />
-        <ellipse cx="175" cy="130" rx="6" ry="9" fill="#E0B998" />
-
-        <rect class="av-brow av-brow-l" x="86" y="113" width="16" height="3" rx="1.5" fill="var(--ink)" />
-        <rect class="av-brow av-brow-r" x="138" y="113" width="16" height="3" rx="1.5" fill="var(--ink)" />
-
-        <circle cx="94" cy="128" r="13" fill="none" stroke="var(--ink)" stroke-width="2.5" />
-        <circle cx="146" cy="128" r="13" fill="none" stroke="var(--ink)" stroke-width="2.5" />
-        <line x1="107" y1="128" x2="133" y2="128" stroke="var(--ink)" stroke-width="2.5" />
-        <line x1="81" y1="128" x2="73" y2="125" stroke="var(--ink)" stroke-width="2.5" />
-        <line x1="159" y1="128" x2="167" y2="125" stroke="var(--ink)" stroke-width="2.5" />
-
-        <g class="av-eyes">
-          <ellipse cx="94" cy="129" rx="2.6" ry="3.6" fill="var(--ink)" />
-          <ellipse cx="146" cy="129" rx="2.6" ry="3.6" fill="var(--ink)" />
-        </g>
-
-        <path d="M120 138 L116 152 Q120 156 124 152 Z" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55" />
-
-        <path class="av-mouth" d="M108 167 Q120 174 132 167" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" />
-
-        <path d="M86 158 Q90 178 110 184 Q120 187 130 184 Q150 178 154 158 Q150 168 132 170 Q120 172 108 170 Q90 168 86 158 Z" fill="var(--ink)" opacity="0.12" />
-      </g>
-    </g>
-
-    <g class="av-chip" transform="translate(180 60)">
-      <rect x="-22" y="-14" width="60" height="28" rx="6" fill="var(--ink)" />
-      <text x="8" y="5" text-anchor="middle" font-family="'Geist Mono', monospace" font-size="11" fill="var(--accent)">{"{ai}"}</text>
-    </g>
-
-    <circle class="av-orbit" cx="40" cy="200" r="6" fill="var(--accent)" />
-  </svg>
-
-  <div class="avatar-meta">
-    <span>DIEGO.CABRERA</span>
-    <span>BOG · 4.6° N</span>
-  </div>
+  <div class="av-orbit-photo"></div>
 </div>
+
+<style>
+  .avatar-photo {
+    width: 85% !important;
+    height: 85% !important;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center top;
+    border: 2px solid var(--ink);
+  }
+
+  .av-chip-photo {
+    position: absolute;
+    top: 15%;
+    right: 5%;
+    background: var(--ink);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: "Geist Mono", monospace;
+    font-size: 11px;
+    color: var(--accent);
+    animation: avChipPhotoFloat 4s ease-in-out infinite;
+  }
+
+  @keyframes avChipPhotoFloat {
+    0%,
+    100% {
+      transform: rotate(-4deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(4deg);
+    }
+  }
+
+  .av-orbit-photo {
+    position: absolute;
+    bottom: 18%;
+    left: 8%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: avOrbitPhoto 6s linear infinite;
+  }
+
+  @keyframes avOrbitPhoto {
+    0% {
+      transform: rotate(0deg) translateX(30px) rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg) translateX(30px) rotate(-360deg);
+    }
+  }
+
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    .avatar-photo {
+      width: 80% !important;
+      height: 80% !important;
+    }
+
+    .av-chip-photo {
+      top: 10%;
+      right: 0;
+      padding: 4px 8px;
+      font-size: 9px;
+    }
+
+    .av-orbit-photo {
+      bottom: 15%;
+      left: 5%;
+      width: 10px;
+      height: 10px;
+    }
+
+    @keyframes avOrbitPhoto {
+      0% {
+        transform: rotate(0deg) translateX(20px) rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg) translateX(20px) rotate(-360deg);
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .av-chip-photo {
+      padding: 3px 6px;
+      font-size: 8px;
+    }
+
+    .av-orbit-photo {
+      width: 8px;
+      height: 8px;
+    }
+  }
+</style>
