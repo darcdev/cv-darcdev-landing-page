@@ -229,10 +229,10 @@ img { display: block; max-width: 100%; }
   position: fixed;
   top: 0;
   right: 0;
-  width: min(320px, 85vw);
+  width: 100%;
   height: 100vh;
   background: var(--paper);
-  border-left: 1px solid var(--line);
+  border-left: none;
   transform: translateX(100%);
   transition: transform 0.3s ease;
   z-index: 100;
@@ -240,6 +240,28 @@ img { display: block; max-width: 100%; }
 }
 .mobile-menu.open {
   transform: translateX(0);
+}
+.mobile-menu-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  z-index: 10;
+}
+.mobile-menu-close:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
 }
 .mobile-menu-inner {
   display: flex;
@@ -457,14 +479,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   .hero-shape, .hero-shape-dot { animation: none !important; }
 }
 
-@media (max-width: 768px) {
-  .hero-shapes { opacity: 0.7; }
-}
 .hero-grid {
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 56px;
-  align-items: flex-end;
 }
 .hero-headline {
   font-size: clamp(46px, 7.2vw, 104px);
@@ -1126,7 +1144,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 56px;
-  align-items: start;
 }
 .bio-large {
   font-family: var(--font-serif);
@@ -1626,7 +1643,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 56px;
-  align-items: start;
+  text-align: center;
 }
 .contact-big {
   font-family: var(--font-serif);
@@ -2149,218 +2166,552 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   transform: translateY(0);
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 980px) {
-  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
-  .hero-side { align-items: center; }
-  .avatar-wrap { width: 280px; margin: 0 auto; }
-  .photo-card { max-width: 320px; }
-  .about-grid, .ask, .contact-grid, .post-featured, .modal-cols { grid-template-columns: 1fr; }
-  .skills-grid { grid-template-columns: repeat(2, 1fr); }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .stat-cell:nth-child(2) { border-right: none; }
-  .featured-grid { grid-template-columns: 1fr; }
-  .post-card { grid-column: span 12; }
-  .proj-row {
-    grid-template-columns: 32px 1fr 24px;
-    gap: 12px;
-    padding: 22px 4px;
-  }
-  .proj-row .proj-tagline, .proj-row .proj-meta-col { display: none; }
-  .proj-row .proj-tags { display: none; }
-  /* Blog mag → stack on tablet */
-  .mag-top { grid-template-columns: 1fr; }
-  .mag-side-col { grid-template-rows: auto auto; }
-  .mag-bottom { grid-template-columns: repeat(2, 1fr); }
-  .mag-card.mag-side { flex-direction: row; }
-  .mag-card.mag-big .mag-cover { height: 260px; }
-  /* Post page */
-  .post-layout { grid-template-columns: 1fr; gap: 40px; }
-  .post-toc-inner { position: static; }
-  .post-author { grid-template-columns: 1fr; }
-  .post-author-avatar { width: 80px; height: 80px; }
+/* ===== RESPONSIVE - MOBILE-FIRST APPROACH ===== */
+/* Breakpoints: 280px (base), 480px, 768px, 1024px, 1280px */
+/* Base styles (280px minimum) - then progressively enhance with min-width */
+
+/* --- BASE MOBILE STYLES (280px minimum viewport) --- */
+
+/* Container - tight padding on mobile */
+.container { padding: 0 16px; }
+
+/* Section spacing - tighter on mobile */
+.section { padding: 60px 0; }
+.section + .section { padding-top: 30px; }
+
+/* Hero grid - single column, stacked */
+.hero-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  text-align: center;
 }
 
-/* ===== Mobile Avatar Responsive (768px) ===== */
-@media (max-width: 768px) {
-  /* Avatar responsive */
-  .avatar-wrap {
-    width: min(220px, 65vw);
-    margin: 0 auto;
-  }
-  .avatar-badge {
-    font-size: 9px;
-    padding: 5px 10px;
-  }
-  .avatar-badge-1 {
-    top: 0;
-    left: 0;
-  }
-  .avatar-badge-2 {
-    bottom: 15px;
-    right: -5px;
-  }
-  .avatar-badge-3 {
-    bottom: 50%;
-    left: -5px;
-  }
+/* Hero side - avatar above text on mobile */
+.hero-side {
+  order: -1;
+  align-items: center;
+}
+
+/* Hero headline - fluid sizing for small screens */
+.hero-headline {
+  font-size: clamp(28px, 9vw, 46px);
+  text-align: center;
+}
+
+/* Hero sub */
+.hero-sub {
+  font-size: 14px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Hero meta buttons - stack on mobile */
+.hero-meta {
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.hero-meta .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Avatar - constrained for small screens */
+.avatar-wrap {
+  width: min(160px, 50vw);
+  margin: 0 auto;
+}
+.avatar-badge {
+  font-size: 9px;
+  padding: 5px 10px;
+}
+.avatar-badge-1 { top: 0; left: 0; }
+.avatar-badge-2 { bottom: 15px; right: -5px; }
+.avatar-badge-3 { display: none; } /* Hide on smallest screens */
+
+/* Eyebrow - centered */
+.eyebrow { justify-content: center; }
+
+/* About grid - single column */
+.about-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  text-align: center;
+}
+
+/* Bio text - fluid sizing */
+.bio-large {
+  font-size: clamp(22px, 5vw, 28px);
+  overflow-wrap: break-word;
+}
+
+/* Info table (.kv-list) - STACK label above value on mobile (US3) */
+.kv-list .row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.kv-list .k { text-align: left; }
+.kv-list .v { text-align: left; }
+
+/* Skills grid - single column */
+.skills-grid {
+  grid-template-columns: 1fr;
+}
+.skill-card { padding: 16px; }
+
+/* Stats grid - single column */
+.stats-grid {
+  grid-template-columns: 1fr;
+}
+.stat-cell {
+  padding: 16px;
+  border-right: none;
+  border-bottom: 1px solid var(--line);
+}
+.stat-cell:last-child { border-bottom: none; }
+.stat-cell .n { font-size: 40px; }
+
+/* Featured grid - single column */
+.featured-grid { grid-template-columns: 1fr; }
+
+/* Project rows - simplified on mobile */
+.proj-row {
+  grid-template-columns: 32px 1fr 24px;
+  gap: 12px;
+  padding: 18px 4px;
+}
+.proj-row .proj-tagline,
+.proj-row .proj-meta-col,
+.proj-row .proj-tags { display: none; }
+
+/* Blog magazine - UNIFORM CARDS, single column (US4) */
+.blog-mag {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mag-top {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mag-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mag-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* Override special card styles for uniform mobile appearance */
+.mag-card.mag-big,
+.mag-card.mag-side,
+.mag-card.mag-base {
+  flex-direction: column;
+}
+.mag-card.mag-big .mag-cover,
+.mag-card.mag-side .mag-cover,
+.mag-card.mag-base .mag-cover {
+  height: 180px;
+  width: 100%;
+  border-right: none;
+  border-bottom: 1px solid var(--ink);
+}
+.mag-card.mag-big .mag-body,
+.mag-card.mag-side .mag-body,
+.mag-card.mag-base .mag-body {
+  padding: 18px 20px 20px;
+}
+.mag-card.mag-big .mag-title,
+.mag-card.mag-side .mag-title,
+.mag-card.mag-base .mag-title {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+/* Ask Diego - SINGLE COLUMN on mobile (US2) */
+.ask {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+.ask-input-row {
+  flex-direction: column;
+  gap: 12px;
+}
+.ask-suggestions {
+  flex-wrap: wrap;
+}
+.ask-output {
+  min-height: auto;
+}
+
+/* Contact grid - SINGLE COLUMN (US5) */
+.contact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  text-align: center;
+  justify-content: center;
+}
+/* Center block elements with max-width inside contact-grid on mobile */
+.contact-grid p {
+  margin-left: auto;
+  margin-right: auto;
+}
+/* Center the status pills container on mobile */
+.contact-grid > div > div[style*="display: flex"] {
+  justify-content: center;
+}
+
+/* Contact link - STACK label above value (US5) */
+.contact-link {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+}
+.contact-link .k { text-align: left; }
+.contact-link .v { text-align: left; }
+
+/* CTA section - prevent overflow (US6) */
+.post-cta {
+  max-width: 100%;
+  padding: 36px 20px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.post-cta h3 {
+  font-size: clamp(22px, 5vw, 28px);
+}
+.post-cta p {
+  font-size: 15px;
+}
+
+/* Post featured - single column */
+.post-featured { grid-template-columns: 1fr; }
+.post-card { grid-column: span 12; }
+
+/* Post layout - single column */
+.post-layout { grid-template-columns: 1fr; gap: 32px; }
+.post-toc-inner { position: static; }
+
+/* Post author - single column */
+.post-author { grid-template-columns: 1fr; }
+.post-author-avatar { width: 80px; height: 80px; }
+
+/* Modal columns - single column */
+.modal-cols { grid-template-columns: 1fr; }
+
+/* Terminal - smaller on mobile */
+.terminal { font-size: 12px; }
+.terminal-body { padding: 14px; min-height: 140px; }
+
+/* Status pill - smaller */
+.status-pill { font-size: 10px; padding: 6px 10px; }
+
+/* Hero shapes - reduced opacity on mobile */
+.hero-shapes { opacity: 0.5; }
+
+.pill-contact {
+  margin-top: 28px; display: flex; gap: 10px; flex-wrap: wrap
+}
+
+/* --- 480px: Large phones --- */
+@media (min-width: 480px) {
+  .container { padding: 0 20px; }
   
-  /* Hero grid - stack and center */
-  .hero-grid {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    text-align: center;
-  }
+  /* Hero improvements */
+  .hero-headline { font-size: clamp(32px, 8vw, 56px); }
+  .hero-sub { font-size: 16px; }
   
-  /* Hero side - center avatar section */
-  .hero-side {
-    align-items: center;
-    order: -1; /* Avatar above text on mobile */
-  }
-  
-  /* Hero text content - center */
-  .hero-headline {
-    text-align: center;
-  }
-  .hero-sub {
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  /* Hero meta buttons - center and wrap */
+  /* Hero meta - row layout */
   .hero-meta {
-    justify-content: center;
+    flex-direction: row;
     flex-wrap: wrap;
-  }
-  
-  /* Eyebrow - center */
-  .eyebrow {
     justify-content: center;
   }
+  .hero-meta .btn { width: auto; }
   
-  /* About grid */
+  /* Avatar larger */
+  .avatar-wrap { width: min(200px, 55vw); }
+  .avatar-badge-3 { display: block;  }
+  
+  /* Bio text larger */
+  .bio-large { font-size: clamp(24px, 4vw, 32px); }
+
+  
+  /* Info table - ROW layout restored (US3) */
+  .kv-list .row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .kv-list .v { text-align: right; }
+  
+  /* Stats - 2 columns */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat-cell { border-right: 1px solid var(--line); }
+  .stat-cell:nth-child(2n) { border-right: none; }
+  .stat-cell .n { font-size: 48px; }
+  
+  /* Ask Diego - 2-column grid (US2) */
+
+  .ask-input-row { flex-direction: row; gap: 8px; }
+  
+  /* Contact link - ROW layout restored (US5) */
+  .contact-link {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .contact-link .v { text-align: right; }
+  
+  /* CTA padding */
+  .post-cta { padding: 44px 28px; }
+  .post-cta h3 { font-size: clamp(24px, 4vw, 32px); }
+  
+}
+
+/* --- 768px: Tablets --- */
+@media (min-width: 768px) {
+  .container { padding: 0 24px; }
+  .section { padding: 80px 0; }
+  .section + .section { padding-top: 40px; }
+  
+  /* Hero - still stacked but larger */
+  .hero-headline { font-size: clamp(40px, 7vw, 72px); }
+  .hero-sub { font-size: 17px; }
+  
+  /* Avatar */
+  .avatar-wrap { width: min(240px, 60vw); }
+  .avatar-badge { font-size: 10px; padding: 6px 12px; }
+  
+  /* Bio */
+  .bio-large { font-size: clamp(26px, 3.5vw, 36px); }
+
+  .ask {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    padding: 28px;
+  }
+
   .about-grid {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-  
-  /* Skills grid - 2 columns on tablet, 1 on phone handled by 640px */
-  .skills-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  /* Stats grid - center */
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    justify-items: center;
-  }
-  
-  /* Projects */
-  .proj-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 48px;
     text-align: left;
   }
   
-  /* Contact grid */
+  /* Skills - 2 columns */
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+  .skill-card { padding: 20px; }
+  
+  /* Blog magazine - restore magazine layout (US4) */
+  .mag-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+  }
+  .mag-side-col {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+  }
+  .mag-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  /* Restore special card styles */
+  .mag-card.mag-big .mag-cover { height: 280px; }
+  .mag-card.mag-big .mag-body { padding: 24px 28px; }
+  .mag-card.mag-big .mag-title { font-size: clamp(22px, 2.2vw, 30px); }
+  .mag-card.mag-side {
+    flex-direction: row;
+  }
+  .mag-card.mag-side .mag-cover {
+    width: 38%;
+    min-width: 120px;
+    height: auto;
+    border-right: 1px solid var(--ink);
+    border-bottom: none;
+  }
+  .mag-card.mag-side .mag-body { padding: 14px 16px; }
+  .mag-card.mag-side .mag-title { font-size: 15px; }
+  
+  /* Contact grid - 2 columns (US5) */
   .contact-grid {
-    grid-template-columns: 1fr;
-    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    text-align: left;
+  }
+  /* Reset paragraph centering on desktop */
+  .contact-grid p {
+    margin-left: 0;
+    margin-right: 0;
   }
   
-  /* Section headings - center */
-  .section-header {
-    text-align: center;
+  /* Featured grid - 2 columns */
+  .featured-grid { grid-template-columns: repeat(2, 1fr); }
+  
+  /* Project rows - show more info */
+  .proj-row {
+    grid-template-columns: 48px 1fr 1fr 24px;
+    gap: 20px;
+    padding: 22px 4px;
   }
-  .section-header .eyebrow {
-    justify-content: center;
+  .proj-row .proj-tagline { display: block; }
+  
+  /* Post layout with sidebar */
+  .post-layout { grid-template-columns: 200px 1fr; gap: 48px; }
+  .post-toc-inner { position: sticky; top: 100px; }
+  
+  /* Hero shapes */
+  .hero-shapes { opacity: 0.7; }
+  
+  /* CTA */
+  .post-cta { padding: 48px 32px; }
+  .post-cta h3 { font-size: clamp(26px, 3.5vw, 36px); }
+
+  .pill-contact {
+    justify-content: flex-start;
   }
 }
 
-@media (max-width: 640px) {
-  .container { padding: 0 18px; }
-  .nav { top: 8px; margin-top: 8px; }
-  .nav-inner { padding: 5px 5px 5px 12px; gap: 2px; }
-  .nav-link { padding: 7px 10px; font-size: 12.5px; }
-  .nav-logo { display: none; }
-  .nav-divider, .nav-icon-btn:not(.theme-btn) { display: none; }
-  .skills-grid, .stats-grid { grid-template-columns: 1fr; }
-  .section { padding: 60px 0; }
-  .modal { padding: 28px 22px; }
-  .hero-social-btn { padding: 9px 12px; font-size: 12px; }
-  .blog-mag .mag-bottom { grid-template-columns: 1fr; }
-  .mag-card.mag-side { flex-direction: column; }
-  .mag-card.mag-side .mag-cover { width: 100%; height: 140px; border-right: none; border-bottom: 1px solid var(--ink); }
-}
-
-/* ===== Extra Small Mobile (480px) ===== */
-@media (max-width: 480px) {
-  /* Container padding tighter */
-  .container { padding: 0 16px; }
+/* --- 1024px: Small laptops --- */
+@media (min-width: 1024px) {
+  .container { padding: 0 28px; }
+  .section { padding: 100px 0; }
+  .section + .section { padding-top: 50px; }
   
-  /* Hero headline - smaller clamp */
+  /* Hero - 2-column grid layout */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 48px;
+    align-items: flex-end;
+    text-align: left;
+  }
+  .hero-side { order: 0; }
   .hero-headline {
-    font-size: clamp(32px, 9vw, 46px);
+    font-size: clamp(46px, 6.5vw, 88px);
+    text-align: left;
   }
-  
-  /* Hero sub - smaller */
   .hero-sub {
-    font-size: 15px;
+    text-align: left;
+    margin-left: 0;
+    font-size: 18px;
   }
-  
-  /* Avatar even smaller */
-  .avatar-wrap {
-    width: min(180px, 55vw);
-  }
-  
-  /* Hide some badges on very small screens */
-  .avatar-badge-3 {
-    display: none;
-  }
-  
-  /* Buttons stack */
   .hero-meta {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    justify-content: flex-start;
   }
-  .hero-meta .btn {
-    width: 100%;
-    justify-content: center;
-  }
+  .eyebrow { justify-content: flex-start; }
   
-  /* Section padding tighter */
-  .section { padding: 40px 0; }
+  /* Avatar */
+  .avatar-wrap { width: 280px; }
+  .avatar-badge { font-size: 10.5px; }
   
-  /* Terminal responsive */
-  .terminal {
-    font-size: 12px;
-  }
-  .terminal-header {
-    padding: 8px 12px;
-  }
-  .terminal-body {
-    padding: 12px;
-    min-height: 120px;
-  }
+  /* About grid - 2 columns */
   
-  /* Status pill smaller */
-  .status-pill {
-    font-size: 10px;
-    padding: 6px 10px;
-  }
   
-  /* Cards tighter */
-  .skill-card {
-    padding: 16px;
-  }
+  /* Bio */
+  .bio-large { font-size: clamp(28px, 3vw, 38px); }
   
-  /* Stats smaller */
-  .stat-cell {
-    padding: 16px;
+  /* Skills - 3 columns */
+  .skills-grid { grid-template-columns: repeat(3, 1fr); }
+  .skill-card { padding: 24px; }
+  
+  /* Stats - 4 columns */
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  .stat-cell { border-right: 1px solid var(--line); }
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell .n { font-size: 52px; }
+  
+  /* Blog magazine - 3-column bottom */
+  .mag-bottom { grid-template-columns: repeat(3, 1fr); }
+  .mag-card.mag-big .mag-cover { height: 300px; }
+  .mag-card.mag-big .mag-title { font-size: clamp(24px, 2.4vw, 34px); }
+  
+  /* Featured grid - 3 columns */
+  .featured-grid { grid-template-columns: repeat(3, 1fr); }
+  
+  /* Project rows - full layout */
+  .proj-row {
+    grid-template-columns: 60px 1fr 1fr 180px 30px;
+    gap: 24px;
+    padding: 26px 4px;
   }
-  .stat-num {
-    font-size: 28px;
+  .proj-row .proj-meta-col { display: block; }
+  .proj-row .proj-tags { display: flex; }
+  
+  /* Ask Diego - larger padding */
+  .ask { padding: 32px; gap: 32px; }
+  
+  /* Contact grid */
+  .contact-grid { gap: 56px; }
+  
+  /* Post layout */
+  .post-layout { grid-template-columns: 220px 1fr; gap: 60px; }
+  
+  /* Post author */
+  .post-author { grid-template-columns: 120px 1fr; }
+  .post-author-avatar { width: 120px; height: 120px; }
+  
+  /* Modal columns */
+  .modal-cols { grid-template-columns: 1fr 240px; }
+  
+  /* CTA */
+  .post-cta { padding: 52px 36px; }
+  .post-cta h3 { font-size: clamp(28px, 3vw, 38px); }
+}
+
+/* --- 1280px+: Desktops (original design) --- */
+@media (min-width: 1280px) {
+  /* Hero grid - original proportions */
+  .hero-grid {
+    grid-template-columns: 1fr 320px;
+    gap: 56px;
   }
+  .hero-headline { font-size: clamp(46px, 7.2vw, 104px); }
+  
+  /* Avatar - original size */
+  .avatar-wrap { width: 320px; }
+  
+  /* About grid - original proportions */
+  .about-grid { gap: 56px; }
+  
+  /* Bio - original sizing */
+  .bio-large { font-size: clamp(28px, 3vw, 40px); }
+  
+  /* Stats */
+  .stat-cell .n { font-size: 56px; }
+  
+  /* Blog magazine - original featured size */
+  .mag-card.mag-big .mag-cover { height: 320px; }
+  .mag-card.mag-big .mag-body { padding: 28px 32px 28px; }
+  .mag-card.mag-big .mag-title { font-size: clamp(26px, 2.4vw, 36px); }
+  .mag-card.mag-side .mag-cover { width: 38%; min-width: 130px; }
+  .mag-card.mag-side .mag-body { padding: 16px 18px; }
+  .mag-card.mag-side .mag-title { font-size: 16px; }
+  
+  /* Ask Diego - original padding */
+  .ask { padding: 36px; gap: 36px; }
+  
+  /* CTA - original styling */
+  .post-cta { padding: 56px 36px; }
+  
+  /* Hero shapes - full opacity */
+  .hero-shapes { opacity: 1; }
 }
 
 /* ===== Smooth Layout Transitions ===== */
@@ -2370,21 +2721,29 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
 .stats-grid,
 .contact-grid,
 .avatar-wrap,
-.nav-inner {
+.nav-inner,
+.ask,
+.blog-mag,
+.mag-top,
+.mag-bottom {
   transition: all 0.3s ease;
 }
 
-/* ===== Responsive Visibility Helpers ===== */
-.hide-mobile { display: block; }
-.show-mobile { display: none; }
-.hide-mobile-flex { display: flex; }
-.show-mobile-flex { display: none; }
+/* ===== Responsive Visibility Helpers (Mobile-First) ===== */
+/* Base: show mobile versions */
+.hide-mobile { display: none; }
+.show-mobile { display: block; }
+.hide-mobile-flex { display: none; }
+.show-mobile-flex { display: flex; }
 
-@media (max-width: 768px) {
-  .hide-mobile { display: none !important; }
-  .show-mobile { display: block !important; }
-  .hide-mobile-flex { display: none !important; }
-  .show-mobile-flex { display: flex !important; }
+@media (min-width: 480px) {
+  .hide-mobile { display: block !important; }
+  .show-mobile { display: none !important; }
+}
+/* 768px+: show desktop versions */
+@media (min-width: 768px) {
+  .hide-mobile-flex { display: flex !important; }
+  .show-mobile-flex { display: none !important; }
 }
 
 
@@ -2576,10 +2935,13 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   letter-spacing: 0;
 }
 
-/* Mobile: hide the name, keep just the flag */
-@media (max-width: 768px) {
-  .nav-lang-btn { padding: 0 8px; gap: 0; }
-  .nav-lang-name { display: none; }
+/* Mobile-first: hide name by default, show on larger screens */
+.nav-lang-btn { padding: 0 8px; gap: 0; }
+.nav-lang-name { display: none; }
+
+@media (min-width: 768px) {
+  .nav-lang-btn { padding: 0 12px 0 8px; gap: 7px; }
+  .nav-lang-name { display: inline; }
 }
 
 
@@ -2658,8 +3020,11 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
 .nav-lang-opt > span { flex: 1; }
 .nav-lang-check { opacity: 0.9; flex-shrink: 0; }
 
-@media (max-width: 768px) {
-  .nav-lang-menu { right: -4px; min-width: 152px; }
+/* Mobile-first: smaller menu by default */
+.nav-lang-menu { right: -4px; min-width: 152px; }
+
+@media (min-width: 768px) {
+  .nav-lang-menu { right: 0; min-width: 168px; }
 }
 
 

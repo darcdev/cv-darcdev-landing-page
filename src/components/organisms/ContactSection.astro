@@ -1,11 +1,15 @@
 ---
-import Reveal from '../islands/Reveal';
-import ContactLinks from '../islands/ContactLinks';
-import StatusPill from '../atoms/StatusPill.astro';
-import Icon from '../atoms/Icon.astro';
+import Reveal from "../islands/Reveal";
+import ContactLinks from "../islands/ContactLinks";
+import StatusPill from "../atoms/StatusPill.astro";
+import Icon from "../atoms/Icon.astro";
 ---
 
-<section id="contact" class="section section-divider" data-screen-label="06 contact">
+<section
+  id="contact"
+  class="section section-divider"
+  data-screen-label="06 contact"
+>
   <div class="container">
     <Reveal client:visible>
       <div class="eyebrow"><span class="idx">06</span> · Contacto</div>
@@ -13,18 +17,25 @@ import Icon from '../atoms/Icon.astro';
     <div class="contact-grid" style="margin-top: 30px;">
       <Reveal client:visible>
         <h2 class="contact-big">
-          ¿Construimos<br/>
+          ¿Construimos<br />
           <span class="it">algo juntos?</span>
         </h2>
-        <p style="color: var(--muted); max-width: 460px; margin-top: 28px; font-size: 18px; line-height: 1.55;">
-          Disponible para proyectos de <strong style="color: var(--ink);">IA aplicada</strong>, arquitectura
-          escalable y consultoría de equipos que quieren integrar agentes a su flujo.
+        <p
+          style="color: var(--muted); max-width: 460px; margin-top: 28px; font-size: 18px; line-height: 1.55;"
+        >
+          Disponible para proyectos de <strong style="color: var(--ink);"
+            >IA aplicada</strong
+          >, arquitectura escalable y consultoría de equipos que quieren
+          integrar agentes a su flujo.
         </p>
         <div style="margin-top: 28px; display: flex; gap: 10px; flex-wrap: wrap;">
-          <StatusPill>
-            Respondo en menos de 24h
-          </StatusPill>
-          <a class="status-pill" href="/cv/CV_Diego_Andres_Cabrera_Rojas_CV.pdf" download="Diego_Cabrera_CV.pdf" style="cursor: pointer;">
+          <StatusPill> Respondo en menos de 24h </StatusPill>
+          <a
+            class="status-pill"
+            href="/cv/CV_Diego_Andres_Cabrera_Rojas_CV.pdf"
+            download="Diego_Cabrera_CV.pdf"
+            style="cursor: pointer;"
+          >
             <Icon name="download" size={14} />
             Descargar CV
           </a>

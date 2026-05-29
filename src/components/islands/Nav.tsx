@@ -203,7 +203,8 @@ export default function Nav() {
         <div class="nav-inner">
           <a class="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); scrollTo("home"); }}>
             <span class="dot"></span>
-            <span>diego.cabrera</span>
+            <span class="hide-mobile">diego.cabrera</span>
+            <span class="show-mobile">d.c</span>
           </a>
           
           {/* Desktop nav links - hidden on mobile */}
@@ -299,6 +300,15 @@ export default function Nav() {
         aria-modal="true"
         aria-label="Navigation menu"
       >
+        {/* Close button */}
+        <button
+          class="mobile-menu-close"
+          onClick={() => setMenuOpen(false)}
+          aria-label={L.closeAria}
+        >
+          <Icon.close />
+        </button>
+        
         <div class="mobile-menu-inner">
           <div class="mobile-menu-links">
             {items.map((it) => (
