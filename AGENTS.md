@@ -2,38 +2,55 @@
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
 
-## Current Feature: Mobile Responsive Layout
+## Current Feature: Mobile-First Responsive Redesign
 
-**Branch**: `002-mobile-responsive-layout`
+**Branch**: `004-mobile-first-responsive`
 
-**Plan**: [specs/002-mobile-responsive-layout/plan.md](specs/002-mobile-responsive-layout/plan.md)
+**Spec**: [specs/004-mobile-first-responsive/spec.md](specs/004-mobile-first-responsive/spec.md)
 
 ### Quick Reference
 
 - **Stack**: Astro 4.x, Preact, TypeScript
-- **Focus**: Responsive CSS, hamburger menu, mobile layout
-- **Breakpoints**: 768px (mobile nav), 640px (small), 480px (xs)
-- **Key Changes**: Nav.tsx, AvatarSVG.astro, global.css
+- **Focus**: Convert to mobile-first CSS, fix 6 responsive issues
+- **Problem**: Current desktop-first CSS breaks on small devices, several sections overflow
+
+### Standard Breakpoints (5 sizes - Mobile-First)
+
+| Breakpoint | Target Devices | Approach |
+|------------|----------------|----------|
+| 280px      | Base (minimum) | Default styles |
+| 480px      | Large phones | `@media (min-width: 480px)` |
+| 768px      | Tablets portrait | `@media (min-width: 768px)` |
+| 1024px     | Tablets landscape, small laptops | `@media (min-width: 1024px)` |
+| 1280px+    | Laptops, desktops | `@media (min-width: 1280px)` |
+
+### Sections to Fix
+
+1. **About section** - Bio text must adapt to all sizes
+2. **Info table** (.kv-list) - Stack label/value vertically on mobile
+3. **Blog section** - Uniform cards, 1 per row on mobile
+4. **Ask Diego** (.ask) - Convert 2-col grid to single column
+5. **Construimos algo juntos** - Fix overflow
+6. **Contact section** - Stack label/value vertically on mobile
 
 ### Key Documents
 
-- [Specification](specs/002-mobile-responsive-layout/spec.md) - User stories and requirements
-- [Plan](specs/002-mobile-responsive-layout/plan.md) - Technical context and structure
-- [Research](specs/002-mobile-responsive-layout/research.md) - Responsive patterns
-- [Data Model](specs/002-mobile-responsive-layout/data-model.md) - Breakpoint system
-- [Quickstart](specs/002-mobile-responsive-layout/quickstart.md) - Development setup
+- [Specification](specs/004-mobile-first-responsive/spec.md) - User stories and requirements
+- [Plan](specs/004-mobile-first-responsive/plan.md) - Technical context and migration strategy
+- [Research](specs/004-mobile-first-responsive/research.md) - Mobile-first CSS patterns
+- [Data Model](specs/004-mobile-first-responsive/data-model.md) - Breakpoint system design
+- [Quickstart](specs/004-mobile-first-responsive/quickstart.md) - Development and testing setup
 
 ### Constitution Principles
 
 1. **Component-First Architecture** - Atomic design hierarchy
 2. **Static-First, Islands for Interactivity** - Minimal JS shipping
-3. **Design Fidelity (NON-NEGOTIABLE)** - Desktop unchanged, mobile adapts proportionally
+3. **Design Fidelity (NON-NEGOTIABLE)** - Desktop unchanged, mobile adapts
 4. **Accessibility & Performance** - 44x44px touch targets, Lighthouse 90+
-5. **Maintainability & Extensibility** - CSS custom properties for breakpoints
+5. **Maintainability & Extensibility** - Prefer flexbox over grid on mobile
 
 ### Files to Modify
 
-- `src/components/islands/Nav.tsx` - Add hamburger menu
-- `src/components/molecules/AvatarSVG.astro` - Responsive sizing
-- `src/styles/global.css` - Media queries (lines 2015-2059)
+- `src/styles/global.css` - Convert to mobile-first media queries
+- Various component `.astro` files with scoped styles
 <!-- SPECKIT END -->
