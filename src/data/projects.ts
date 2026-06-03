@@ -1,209 +1,426 @@
-export type ProjectStatus = 'Producción' | 'Rollout' | 'MVP' | 'Adquirida';
+/**
+ * Projects, split into shared (locale-agnostic) and translated fields.
+ *
+ * - `status` is a stable code ('in-production' | 'rollout' | 'mvp' | 'acquired'),
+ *   never a localized label. Use `getStatusLabel(status, locale)` to render.
+ * - `cover` is now an explicit shared field per project (replaces the old
+ *   imperative `pickCover` switch).
+ * - Tags and stack are technical names; they stay in shared.
+ *
+ * To add a new locale: extend the registry in src/i18n/config.ts and add
+ * matching entries to PROJECTS_BY_LOCALE, PROJECT_STATUS_LABELS,
+ * PROJECT_TYPES_ALL_LABEL — TypeScript will refuse to compile if any of them
+ * is missing the new locale.
+ */
+
+import { defaultLocale, resolveLocale, type LocaleCode } from '../i18n/config';
+
+/** Stable status code. NEVER store localized labels here. */
+export type ProjectStatus = 'in-production' | 'rollout' | 'mvp' | 'acquired';
 export type CoverPattern = 'rag' | 'spec' | 'mcp' | 'arch' | 'oss' | 'pr';
 
-export interface Project {
+/** Locale-agnostic project fields. */
+export interface ProjectShared {
   id: string;
-  title: string;
-  tagline: string;
   year: string;
-  role: string;
-  client: string;
-  status: ProjectStatus;
-  type: string;
   featured: boolean;
   liveUrl?: string;
   tags: string[];
+  stack: string[];
+  status: ProjectStatus;
+  cover: CoverPattern;
+}
+
+/** Per-locale, human-facing project fields. */
+export interface ProjectTranslated {
+  title: string;
+  tagline: string;
+  role: string;
+  client: string;
+  /** User-facing category (e.g. "IA / Agentes" / "AI / Agents"). */
+  type: string;
   summary: string;
   problem: string;
   solution: string;
   impact: string[];
-  stack: string[];
 }
 
-export const PROJECTS: Project[] = [
+/** Resolved project for a specific locale. */
+export interface Project extends ProjectShared, ProjectTranslated {}
+
+export const PROJECTS_SHARED: ProjectShared[] = [
   {
-    id: "rag-agent",
-    title: "Agente Conversacional RAG",
-    tagline: "Documentación organizacional consultada en lenguaje natural.",
-    year: "2025",
-    role: "Tech Lead",
-    client: "SASOFTCO · Interno",
-    status: "Producción",
-    type: "IA / Agentes",
+    id: 'rag-agent',
+    year: '2025',
     featured: true,
-    tags: ["Python", "LangChain", "Weaviate", "RAG", "LLMs"],
-    summary: "Agente RAG sobre la base documental interna. Reemplaza búsquedas manuales sobre cientos de páginas técnicas por consultas conversacionales con citas verificables.",
-    problem: "Los equipos funcionales perdían horas buscando información dispersa entre PDFs, wikis y repositorios.",
-    solution: "Pipeline de ingesta con chunking semántico, embeddings y reranking sobre Weaviate. Capa de orquestación en LangChain con tools para autorización y trazabilidad.",
-    impact: [
-      "−85% tiempo de respuesta a consultas técnicas",
-      "100% de respuestas con cita a fuente",
-      "12 equipos adoptaron la herramienta en 3 meses",
-    ],
-    stack: ["Python", "LangChain", "Weaviate", "FastAPI", "OpenAI", "Docker"],
+    status: 'in-production',
+    cover: 'rag',
+    tags: ['Python', 'LangChain', 'Weaviate', 'RAG', 'LLMs'],
+    stack: ['Python', 'LangChain', 'Weaviate', 'FastAPI', 'OpenAI', 'Docker'],
   },
   {
-    id: "spec-driven",
-    title: "Spec-Driven Development con IA",
-    tagline: "De la especificación al código, con agentes auditados.",
-    year: "2025",
-    role: "Tech Lead",
-    client: "SASOFTCO",
-    status: "Rollout",
-    type: "Plataforma / IA",
+    id: 'spec-driven',
+    year: '2025',
     featured: true,
-    tags: ["MCP", "Agentes", "DevEx", "Spec-Driven"],
-    summary: "Integración de bases de conocimiento de proyectos con agentes de IA mediante MCP. Reduce time-to-market y homogeniza la calidad del equipo.",
-    problem: "Cada equipo escribía specs distintas; los agentes de IA no tenían contexto de proyecto.",
-    solution: "Servidores MCP exponen specs, ADRs y estándares. Agent skills orquestan generación, revisión y aceptación con human-in-the-loop.",
-    impact: [
-      "Time-to-market reducido en proyectos piloto",
-      "Estándares aplicados de forma automática",
-      "Onboarding más corto para nuevos devs",
-    ],
-    stack: ["MCP", "Claude Code", "TypeScript", "Markdown", "GitHub Actions"],
+    status: 'rollout',
+    cover: 'spec',
+    tags: ['MCP', 'Agentes', 'DevEx', 'Spec-Driven'],
+    stack: ['MCP', 'Claude Code', 'TypeScript', 'Markdown', 'GitHub Actions'],
   },
   {
-    id: "ai-pr-review",
-    title: "Revisión de PRs con IA",
-    tagline: "Calidad automática como primera línea de defensa.",
-    year: "2024",
-    role: "Tech Lead",
-    client: "SASOFTCO",
-    status: "Producción",
-    type: "DevOps / IA",
+    id: 'ai-pr-review',
+    year: '2024',
     featured: false,
-    tags: ["CI/CD", "LLMs", "GitHub Actions"],
-    summary: "Flujo de IA en pull requests que valida estándares de la compañía, detecta deuda técnica y sugiere refactors antes del review humano.",
-    problem: "Reviewers gastaban tiempo en hallazgos repetitivos.",
-    solution: "Pipeline en GitHub Actions con prompts especializados por lenguaje y reglas custom de la organización.",
-    impact: ["−40% comentarios manuales repetitivos", "Mayor consistencia entre equipos"],
-    stack: ["GitHub Actions", "TypeScript", "OpenAI", "Reglas custom"],
+    status: 'in-production',
+    cover: 'pr',
+    tags: ['CI/CD', 'LLMs', 'GitHub Actions'],
+    stack: ['GitHub Actions', 'TypeScript', 'OpenAI', 'Reglas custom'],
   },
   {
-    id: "jackcore",
-    title: "Migración Monolito → Microservicios",
-    tagline: "Jackcore convertido en capacidades reutilizables.",
-    year: "2024",
-    role: "Tech Lead / Arquitecto",
-    client: "SASOFTCO · Gobierno",
-    status: "Producción",
-    type: "Arquitectura",
+    id: 'jackcore',
+    year: '2024',
     featured: true,
-    tags: [".NET Core", "Spring Boot", "Angular", "Microservicios"],
-    summary: "Lideré la migración del monolito Jackcore a una arquitectura de microservicios: autenticación, BPMN, notificaciones, conversión de documentos y almacenamiento.",
-    problem: "El monolito frenaba la velocidad de nuevos desarrollos y dificultaba el reuso entre productos.",
-    solution: "Identificación de capacidades transversales, contracts-first, gateways y autenticación centralizada consumidas desde apps Angular.",
-    impact: [
-      "Múltiples sistemas internos reutilizan las capacidades",
-      "Costo de nuevos desarrollos reducido",
-      "Despliegues independientes por dominio",
-    ],
-    stack: [".NET Core", "Java Spring Boot", "Angular", "SQL Server", "Oracle"],
+    status: 'in-production',
+    cover: 'arch',
+    tags: ['.NET Core', 'Spring Boot', 'Angular', 'Microservicios'],
+    stack: ['.NET Core', 'Java Spring Boot', 'Angular', 'SQL Server', 'Oracle'],
   },
   {
-    id: "govcodepro",
-    title: "GovcodePro — Form Builder Dinámico",
-    tagline: "De días a minutos para crear formularios complejos.",
-    year: "2024",
-    role: "Full Stack Dev",
-    client: "SASOFTCO · Gobierno",
-    status: "Producción",
-    type: "Producto",
+    id: 'govcodepro',
+    year: '2024',
     featured: false,
-    tags: ["Angular", "Camunda", "BPMN"],
-    summary: "Generador dinámico de formularios integrado a Camunda Forms Modeler. Hoy es la base de varios portales y trámites gubernamentales.",
-    problem: "Formularios complejos requerían días de desarrollo a la medida.",
-    solution: "Motor declarativo con validaciones, reglas y orquestación BPMN.",
-    impact: ["Creación de formularios pasó de días a minutos", "Adoptado por múltiples portales"],
-    stack: ["Angular", "Camunda", "TypeScript", ".NET Core"],
+    status: 'in-production',
+    cover: 'mcp',
+    tags: ['Angular', 'Camunda', 'BPMN'],
+    stack: ['Angular', 'Camunda', 'TypeScript', '.NET Core'],
   },
   {
-    id: "trip-planner",
-    title: "Trip Planner IA",
-    tagline: "Frontend rediseñado para una startup adquirida por layla.com.",
-    year: "2023",
-    role: "Frontend Architect",
-    client: "Startup · Freelance",
-    status: "Adquirida",
-    type: "Producto / IA",
+    id: 'trip-planner',
+    year: '2023',
     featured: true,
-    liveUrl: "https://layla.com",
-    tags: ["React", "TypeScript", "IA"],
-    summary: "Rediseño de la arquitectura frontend en React de Trip Planner IA — startup de planificación de viajes con IA posteriormente adquirida por layla.com.",
-    problem: "Arquitectura frontend acoplada limitaba escalar features de planificación con IA.",
-    solution: "Arquitectura por features, state management aislado, streaming UI para respuestas del modelo y observabilidad de prompts.",
-    impact: ["Mejor rendimiento percibido", "Base sostenible para nuevos features de IA"],
-    stack: ["React", "TypeScript", "Vite", "OpenAI"],
+    status: 'acquired',
+    cover: 'oss',
+    liveUrl: 'https://layla.com',
+    tags: ['React', 'TypeScript', 'IA'],
+    stack: ['React', 'TypeScript', 'Vite', 'OpenAI'],
   },
   {
-    id: "luminara",
-    title: "Landing Luminara",
-    tagline: "Construida con Claude Code y Cursor, sin sacrificar calidad.",
-    year: "2025",
-    role: "Full Stack Dev",
-    client: "Luminara · Freelance",
-    status: "Producción",
-    type: "Web",
+    id: 'luminara',
+    year: '2025',
     featured: false,
-    liveUrl: "https://luminara.com",
-    tags: ["Next.js", "Claude Code", "Cursor"],
-    summary: "Landing construida principalmente con asistencia de IA (Claude Code + Cursor), con revisión humana continua para mantener calidad y mantenibilidad.",
-    problem: "Time-to-market crítico para una landing con animaciones y SEO.",
-    solution: "Workflow Spec-Driven con prompts versionados y revisión humana en cada commit.",
-    impact: ["Entrega acelerada", "Código sostenible para iteraciones futuras"],
-    stack: ["Next.js", "Tailwind", "TypeScript"],
+    status: 'in-production',
+    cover: 'spec',
+    liveUrl: 'https://luminara.com',
+    tags: ['Next.js', 'Claude Code', 'Cursor'],
+    stack: ['Next.js', 'Tailwind', 'TypeScript'],
   },
   {
-    id: "albertcts",
-    title: "Landing AlbertCTS",
-    tagline: "70% menos tiempo de entrega con prácticas de IA.",
-    year: "2024",
-    role: "Full Stack Dev",
-    client: "AlbertCTS · Freelance",
-    status: "Producción",
-    type: "Web",
+    id: 'albertcts',
+    year: '2024',
     featured: false,
-    liveUrl: "https://albertcts.com",
-    tags: ["Cursor", "Copilot", "Next.js"],
-    summary: "Landing entregada con Cursor + GitHub Copilot, reduciendo el tiempo total en ~70% comparado con el flujo tradicional.",
-    problem: "Cliente necesitaba presencia online con corto plazo de entrega.",
-    solution: "Componentes reusables, generación asistida y revisión humana.",
-    impact: ["Time-to-market −70%", "Cliente activo en producción"],
-    stack: ["Next.js", "TypeScript", "Tailwind"],
+    status: 'in-production',
+    cover: 'rag',
+    liveUrl: 'https://albertcts.com',
+    tags: ['Cursor', 'Copilot', 'Next.js'],
+    stack: ['Next.js', 'TypeScript', 'Tailwind'],
   },
   {
-    id: "b2b-materiales",
-    title: "MVP B2B de Materiales",
-    tagline: "App móvil con trazabilidad transaccional por cliente.",
-    year: "2023",
-    role: "Mobile Dev",
-    client: "Confidencial · Freelance",
-    status: "MVP",
-    type: "Mobile",
+    id: 'b2b-materiales',
+    year: '2023',
     featured: false,
-    tags: ["React Native", "Node.js", "B2B"],
-    summary: "MVP móvil para una plataforma B2B de compra-venta de materiales con trazabilidad por cliente.",
-    problem: "Operadores trabajaban con planillas y llamadas.",
-    solution: "App nativa con flujo de cotización, orden y seguimiento.",
-    impact: ["MVP validado con primeros clientes piloto"],
-    stack: ["React Native", "Node.js", "PostgreSQL"],
+    status: 'mvp',
+    cover: 'arch',
+    tags: ['React Native', 'Node.js', 'B2B'],
+    stack: ['React Native', 'Node.js', 'PostgreSQL'],
   },
 ];
 
-export const PROJECT_TYPES = ["Todos", ...Array.from(new Set(PROJECTS.map((p) => p.type)))];
+export const PROJECTS_BY_LOCALE: Record<
+  LocaleCode,
+  Record<string, ProjectTranslated>
+> = {
+  es: {
+    'rag-agent': {
+      title: 'Agente Conversacional RAG',
+      tagline: 'Documentación organizacional consultada en lenguaje natural.',
+      role: 'Tech Lead',
+      client: 'SASOFTCO · Interno',
+      type: 'IA / Agentes',
+      summary: 'Agente RAG sobre la base documental interna. Reemplaza búsquedas manuales sobre cientos de páginas técnicas por consultas conversacionales con citas verificables.',
+      problem: 'Los equipos funcionales perdían horas buscando información dispersa entre PDFs, wikis y repositorios.',
+      solution: 'Pipeline de ingesta con chunking semántico, embeddings y reranking sobre Weaviate. Capa de orquestación en LangChain con tools para autorización y trazabilidad.',
+      impact: [
+        '−85% tiempo de respuesta a consultas técnicas',
+        '100% de respuestas con cita a fuente',
+        '12 equipos adoptaron la herramienta en 3 meses',
+      ],
+    },
+    'spec-driven': {
+      title: 'Spec-Driven Development con IA',
+      tagline: 'De la especificación al código, con agentes auditados.',
+      role: 'Tech Lead',
+      client: 'SASOFTCO',
+      type: 'Plataforma / IA',
+      summary: 'Integración de bases de conocimiento de proyectos con agentes de IA mediante MCP. Reduce time-to-market y homogeniza la calidad del equipo.',
+      problem: 'Cada equipo escribía specs distintas; los agentes de IA no tenían contexto de proyecto.',
+      solution: 'Servidores MCP exponen specs, ADRs y estándares. Agent skills orquestan generación, revisión y aceptación con human-in-the-loop.',
+      impact: [
+        'Time-to-market reducido en proyectos piloto',
+        'Estándares aplicados de forma automática',
+        'Onboarding más corto para nuevos devs',
+      ],
+    },
+    'ai-pr-review': {
+      title: 'Revisión de PRs con IA',
+      tagline: 'Calidad automática como primera línea de defensa.',
+      role: 'Tech Lead',
+      client: 'SASOFTCO',
+      type: 'DevOps / IA',
+      summary: 'Flujo de IA en pull requests que valida estándares de la compañía, detecta deuda técnica y sugiere refactors antes del review humano.',
+      problem: 'Reviewers gastaban tiempo en hallazgos repetitivos.',
+      solution: 'Pipeline en GitHub Actions con prompts especializados por lenguaje y reglas custom de la organización.',
+      impact: ['−40% comentarios manuales repetitivos', 'Mayor consistencia entre equipos'],
+    },
+    'jackcore': {
+      title: 'Migración Monolito → Microservicios',
+      tagline: 'Jackcore convertido en capacidades reutilizables.',
+      role: 'Tech Lead / Arquitecto',
+      client: 'SASOFTCO · Gobierno',
+      type: 'Arquitectura',
+      summary: 'Lideré la migración del monolito Jackcore a una arquitectura de microservicios: autenticación, BPMN, notificaciones, conversión de documentos y almacenamiento.',
+      problem: 'El monolito frenaba la velocidad de nuevos desarrollos y dificultaba el reuso entre productos.',
+      solution: 'Identificación de capacidades transversales, contracts-first, gateways y autenticación centralizada consumidas desde apps Angular.',
+      impact: [
+        'Múltiples sistemas internos reutilizan las capacidades',
+        'Costo de nuevos desarrollos reducido',
+        'Despliegues independientes por dominio',
+      ],
+    },
+    'govcodepro': {
+      title: 'GovcodePro — Form Builder Dinámico',
+      tagline: 'De días a minutos para crear formularios complejos.',
+      role: 'Full Stack Dev',
+      client: 'SASOFTCO · Gobierno',
+      type: 'Producto',
+      summary: 'Generador dinámico de formularios integrado a Camunda Forms Modeler. Hoy es la base de varios portales y trámites gubernamentales.',
+      problem: 'Formularios complejos requerían días de desarrollo a la medida.',
+      solution: 'Motor declarativo con validaciones, reglas y orquestación BPMN.',
+      impact: ['Creación de formularios pasó de días a minutos', 'Adoptado por múltiples portales'],
+    },
+    'trip-planner': {
+      title: 'Trip Planner IA',
+      tagline: 'Frontend rediseñado para una startup adquirida por layla.com.',
+      role: 'Frontend Architect',
+      client: 'Startup · Freelance',
+      type: 'Producto / IA',
+      summary: 'Rediseño de la arquitectura frontend en React de Trip Planner IA — startup de planificación de viajes con IA posteriormente adquirida por layla.com.',
+      problem: 'Arquitectura frontend acoplada limitaba escalar features de planificación con IA.',
+      solution: 'Arquitectura por features, state management aislado, streaming UI para respuestas del modelo y observabilidad de prompts.',
+      impact: ['Mejor rendimiento percibido', 'Base sostenible para nuevos features de IA'],
+    },
+    'luminara': {
+      title: 'Landing Luminara',
+      tagline: 'Construida con Claude Code y Cursor, sin sacrificar calidad.',
+      role: 'Full Stack Dev',
+      client: 'Luminara · Freelance',
+      type: 'Web',
+      summary: 'Landing construida principalmente con asistencia de IA (Claude Code + Cursor), con revisión humana continua para mantener calidad y mantenibilidad.',
+      problem: 'Time-to-market crítico para una landing con animaciones y SEO.',
+      solution: 'Workflow Spec-Driven con prompts versionados y revisión humana en cada commit.',
+      impact: ['Entrega acelerada', 'Código sostenible para iteraciones futuras'],
+    },
+    'albertcts': {
+      title: 'Landing AlbertCTS',
+      tagline: '70% menos tiempo de entrega con prácticas de IA.',
+      role: 'Full Stack Dev',
+      client: 'AlbertCTS · Freelance',
+      type: 'Web',
+      summary: 'Landing entregada con Cursor + GitHub Copilot, reduciendo el tiempo total en ~70% comparado con el flujo tradicional.',
+      problem: 'Cliente necesitaba presencia online con corto plazo de entrega.',
+      solution: 'Componentes reusables, generación asistida y revisión humana.',
+      impact: ['Time-to-market −70%', 'Cliente activo en producción'],
+    },
+    'b2b-materiales': {
+      title: 'MVP B2B de Materiales',
+      tagline: 'App móvil con trazabilidad transaccional por cliente.',
+      role: 'Mobile Dev',
+      client: 'Confidencial · Freelance',
+      type: 'Mobile',
+      summary: 'MVP móvil para una plataforma B2B de compra-venta de materiales con trazabilidad por cliente.',
+      problem: 'Operadores trabajaban con planillas y llamadas.',
+      solution: 'App nativa con flujo de cotización, orden y seguimiento.',
+      impact: ['MVP validado con primeros clientes piloto'],
+    },
+  },
+  en: {
+    'rag-agent': {
+      title: 'Conversational RAG Agent',
+      tagline: 'Organizational documentation queried in natural language.',
+      role: 'Tech Lead',
+      client: 'SASOFTCO · Internal',
+      type: 'AI / Agents',
+      summary: 'A RAG agent over the internal documentation base. Replaces manual searches across hundreds of technical pages with conversational queries that include verifiable citations.',
+      problem: 'Functional teams were losing hours searching for information scattered across PDFs, wikis and repositories.',
+      solution: 'Ingestion pipeline with semantic chunking, embeddings and reranking on Weaviate. Orchestration layer in LangChain with tools for authorization and traceability.',
+      impact: [
+        '−85% response time for technical queries',
+        '100% of answers include source citations',
+        '12 teams adopted the tool within 3 months',
+      ],
+    },
+    'spec-driven': {
+      title: 'Spec-Driven Development with AI',
+      tagline: 'From specification to code, with audited agents.',
+      role: 'Tech Lead',
+      client: 'SASOFTCO',
+      type: 'Platform / AI',
+      summary: 'Integration of project knowledge bases with AI agents through MCP. Reduces time-to-market and standardizes team quality.',
+      problem: 'Each team wrote different specs; AI agents had no project context.',
+      solution: 'MCP servers expose specs, ADRs and standards. Agent skills orchestrate generation, review and acceptance with human-in-the-loop.',
+      impact: [
+        'Time-to-market reduced in pilot projects',
+        'Standards applied automatically',
+        'Shorter onboarding for new developers',
+      ],
+    },
+    'ai-pr-review': {
+      title: 'AI-powered PR Review',
+      tagline: 'Automated quality as the first line of defense.',
+      role: 'Tech Lead',
+      client: 'SASOFTCO',
+      type: 'DevOps / AI',
+      summary: 'AI workflow on pull requests that validates company standards, detects technical debt and suggests refactors before human review.',
+      problem: 'Reviewers were spending time on repetitive findings.',
+      solution: 'GitHub Actions pipeline with language-specialized prompts and custom organizational rules.',
+      impact: ['−40% repetitive manual comments', 'Higher consistency across teams'],
+    },
+    'jackcore': {
+      title: 'Monolith → Microservices Migration',
+      tagline: 'Jackcore turned into reusable capabilities.',
+      role: 'Tech Lead / Architect',
+      client: 'SASOFTCO · Government',
+      type: 'Architecture',
+      summary: 'Led the migration of the Jackcore monolith to a microservices architecture: authentication, BPMN, notifications, document conversion and storage.',
+      problem: 'The monolith slowed new development and made it hard to reuse capabilities across products.',
+      solution: 'Identification of cross-cutting capabilities, contracts-first, gateways and centralized auth consumed from Angular apps.',
+      impact: [
+        'Multiple internal systems reuse the capabilities',
+        'Cost of new development reduced',
+        'Independent deployments per domain',
+      ],
+    },
+    'govcodepro': {
+      title: 'GovcodePro — Dynamic Form Builder',
+      tagline: 'From days to minutes to create complex forms.',
+      role: 'Full Stack Dev',
+      client: 'SASOFTCO · Government',
+      type: 'Product',
+      summary: 'Dynamic form generator integrated with Camunda Forms Modeler. Today it powers several government portals and procedures.',
+      problem: 'Complex forms required days of bespoke development.',
+      solution: 'Declarative engine with validations, rules and BPMN orchestration.',
+      impact: ['Form creation went from days to minutes', 'Adopted by multiple portals'],
+    },
+    'trip-planner': {
+      title: 'Trip Planner AI',
+      tagline: 'Frontend redesigned for a startup acquired by layla.com.',
+      role: 'Frontend Architect',
+      client: 'Startup · Freelance',
+      type: 'Product / AI',
+      summary: 'Frontend architecture redesign in React for Trip Planner AI — an AI travel-planning startup later acquired by layla.com.',
+      problem: 'Coupled frontend architecture limited scaling AI planning features.',
+      solution: 'Feature-based architecture, isolated state management, streaming UI for model responses and prompt observability.',
+      impact: ['Better perceived performance', 'Sustainable foundation for new AI features'],
+    },
+    'luminara': {
+      title: 'Luminara Landing',
+      tagline: 'Built with Claude Code and Cursor, without sacrificing quality.',
+      role: 'Full Stack Dev',
+      client: 'Luminara · Freelance',
+      type: 'Web',
+      summary: 'Landing built primarily with AI assistance (Claude Code + Cursor), with continuous human review to maintain quality and maintainability.',
+      problem: 'Critical time-to-market for a landing with animations and SEO.',
+      solution: 'Spec-Driven workflow with versioned prompts and human review on every commit.',
+      impact: ['Accelerated delivery', 'Sustainable code for future iterations'],
+    },
+    'albertcts': {
+      title: 'AlbertCTS Landing',
+      tagline: '70% less delivery time with AI practices.',
+      role: 'Full Stack Dev',
+      client: 'AlbertCTS · Freelance',
+      type: 'Web',
+      summary: 'Landing delivered with Cursor + GitHub Copilot, reducing total time by ~70% compared with the traditional flow.',
+      problem: 'Client needed an online presence with a tight delivery deadline.',
+      solution: 'Reusable components, AI-assisted generation and human review.',
+      impact: ['Time-to-market −70%', 'Client live in production'],
+    },
+    'b2b-materiales': {
+      title: 'B2B Materials MVP',
+      tagline: 'Mobile app with per-client transactional traceability.',
+      role: 'Mobile Dev',
+      client: 'Confidential · Freelance',
+      type: 'Mobile',
+      summary: 'Mobile MVP for a B2B materials buy/sell platform with per-client traceability.',
+      problem: 'Operators worked with spreadsheets and phone calls.',
+      solution: 'Native app with quote, order and tracking flow.',
+      impact: ['MVP validated with first pilot clients'],
+    },
+  },
+};
 
-export function pickCover(project: Project): CoverPattern {
-  const map: Record<string, CoverPattern> = {
-    "rag-agent": "rag",
-    "spec-driven": "spec",
-    "ai-pr-review": "pr",
-    "jackcore": "arch",
-    "govcodepro": "mcp",
-    "trip-planner": "oss",
-    "luminara": "spec",
-    "albertcts": "rag",
-    "b2b-materiales": "arch",
-  };
-  return map[project.id] || "rag";
+/** Localized labels for project status codes. */
+export const PROJECT_STATUS_LABELS: Record<
+  LocaleCode,
+  Record<ProjectStatus, string>
+> = {
+  es: {
+    'in-production': 'Producción',
+    'rollout': 'Rollout',
+    'mvp': 'MVP',
+    'acquired': 'Adquirida',
+  },
+  en: {
+    'in-production': 'In production',
+    'rollout': 'Rollout',
+    'mvp': 'MVP',
+    'acquired': 'Acquired',
+  },
+};
+
+/** Localized "All" label used by the project-type filter. */
+export const PROJECT_TYPES_ALL_LABEL: Record<LocaleCode, string> = {
+  es: 'Todos',
+  en: 'All',
+};
+
+export function getProjects(locale: string = defaultLocale): Project[] {
+  const code = resolveLocale(locale);
+  const map = PROJECTS_BY_LOCALE[code];
+  const fallback = PROJECTS_BY_LOCALE[defaultLocale];
+  return PROJECTS_SHARED.map((shared) => ({
+    ...shared,
+    ...(map[shared.id] ?? fallback[shared.id]),
+  }));
 }
+
+export function getStatusLabel(status: ProjectStatus, locale: string = defaultLocale): string {
+  const code = resolveLocale(locale);
+  return PROJECT_STATUS_LABELS[code][status];
+}
+
+export function getAllLabel(locale: string = defaultLocale): string {
+  const code = resolveLocale(locale);
+  return PROJECT_TYPES_ALL_LABEL[code];
+}
+
+export function getProjectTypes(locale: string = defaultLocale): string[] {
+  const all = getAllLabel(locale);
+  const types = Array.from(new Set(getProjects(locale).map((p) => p.type)));
+  return [all, ...types];
+}
+
+/**
+ * Default-locale exports kept for backwards-compatibility.
+ * New code should prefer the get* helpers.
+ */
+export const PROJECTS: Project[] = getProjects(defaultLocale);
+export const PROJECT_TYPES: string[] = getProjectTypes(defaultLocale);

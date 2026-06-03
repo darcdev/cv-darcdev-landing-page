@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import type { FunctionComponent } from 'preact';
-import { locales, defaultLocale, supportedCodes } from '../../i18n/config';
+import { locales, defaultLocale, isLocaleCode } from '../../i18n/config';
 import { t } from '../../i18n/translate';
 
 interface Props {
@@ -92,7 +92,7 @@ function pathForLocale(targetCode: string): string {
   if (typeof window === 'undefined') return `/${targetCode}/`;
   const path = window.location.pathname || '/';
   const match = path.match(/^\/([a-z]{2})(\/.*)?$/);
-  if (match && supportedCodes.includes(match[1])) {
+  if (match && isLocaleCode(match[1])) {
     const rest = match[2] ?? '/';
     return `/${targetCode}${rest}`;
   }
@@ -107,7 +107,7 @@ const Nav: FunctionComponent<Props> = ({ locale }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const lang = supportedCodes.includes(locale) ? locale : defaultLocale;
+  const lang = isLocaleCode(locale) ? locale : defaultLocale;
 
   const items = [
     { id: "home",     key: "nav.home" },

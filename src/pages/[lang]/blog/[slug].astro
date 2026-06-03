@@ -9,7 +9,7 @@ import {
   loadPostEntry,
   type PostMeta,
 } from "../../../content/loadPosts";
-import { defaultLocale, supportedCodes } from "../../../i18n/config";
+import { supportedCodes, defaultLocale, resolveLocale } from "../../../i18n/config";
 import { t } from "../../../i18n/translate";
 
 export async function getStaticPaths() {
@@ -25,9 +25,7 @@ export async function getStaticPaths() {
 }
 
 const { lang, slug } = Astro.params;
-const langCode = supportedCodes.includes(lang ?? "")
-  ? (lang as string)
-  : defaultLocale;
+const langCode = resolveLocale(lang);
 
 const resolved = await loadPostEntry(langCode, slug as string);
 if (!resolved) {

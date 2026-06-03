@@ -43,7 +43,7 @@ function warn(code: string, msg: string) {
 }
 
 // ── 1. Validate config: exactly one default ─────────────────────────────────
-const defaults = locales.filter((l) => l.default);
+const defaults = locales.filter((l) => 'default' in l && l.default);
 if (defaults.length === 0) {
   err('E_NO_DEFAULT', 'No locale in src/i18n/config.ts has default: true');
 }

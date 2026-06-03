@@ -1,27 +1,11 @@
 import { useState, useMemo, useEffect } from 'preact/hooks';
 import type { FunctionComponent } from 'preact';
-import { localizedProjects, localizedProjectTypes, localizedAllLabel, localizedStatus } from '../../data/i18n';
-import type { Project } from '../../data/projects';
+import { getProjects, getProjectTypes, getAllLabel, getStatusLabel, type Project } from '../../data/projects';
 import { t } from '../../i18n/translate';
 
 interface Props {
   /** Active locale code. */
   locale: string;
-}
-
-function pickCover(p: Project): string {
-  const map: Record<string, string> = {
-    'rag-agent': 'rag',
-    'spec-driven': 'spec',
-    'ai-pr-review': 'pr',
-    'jackcore': 'arch',
-    'govcodepro': 'mcp',
-    'trip-planner': 'oss',
-    'luminara': 'spec',
-    'albertcts': 'rag',
-    'b2b-materiales': 'arch',
-  };
-  return map[p.id] || 'rag';
 }
 
 function Cover({ kind }: { kind: string }) {
@@ -70,7 +54,7 @@ function ProjectModal({ project, lang, onClose }: { project: Project; lang: stri
           </a>
         )}
         <div class="modal-cover">
-          <Cover kind={pickCover(project)} />
+          <Cover kind={project.cover} />
         </div>
         <div class="modal-cols">
           <div>
@@ -104,7 +88,7 @@ function ProjectModal({ project, lang, onClose }: { project: Project; lang: stri
             </div>
             <div class="modal-section">
               <h4>{t('projects.modal.status', undefined, lang)}</h4>
-              <p style={{ fontSize: 14 }}>{localizedStatus(project.status, lang)}</p>
+              <p style={{ fontSize: 14 }}>{getStatusLabel(project.status, lang)}</p>
             </div>
             <div class="modal-section" style={{ marginBottom: 0 }}>
               <h4>{t('projects.modal.stack', undefined, lang)}</h4>
@@ -121,13 +105,13 @@ function ProjectModal({ project, lang, onClose }: { project: Project; lang: stri
 
 const ProjectsSection: FunctionComponent<Props> = ({ locale }) => {
   const lang = locale;
-  const allLabel = localizedAllLabel(lang);
+  const allLabel = getAllLabel(lang);
   const [filter, setFilter] = useState<string>(allLabel);
   const [search, setSearch] = useState('');
   const [modalId, setModalId] = useState<string | null>(null);
 
-  const projects = useMemo(() => localizedProjects(lang), [lang]);
-  const projectTypes = useMemo(() => localizedProjectTypes(lang), [lang]);
+  const projects = useMemo(() => getProjects(lang), [lang]);
+  const projectTypes = useMemo(() => getProjectTypes(lang), [lang]);
 
   const filtered = useMemo(() => {
     let r = projects;
@@ -182,7 +166,7 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale }) => {
             {featured.map((p) => (
               <div key={p.id} class="feat-card" onClick={() => setModalId(p.id)}>
                 <div class="feat-cover">
-                  <Cover kind={pickCover(p)} />
+                  <Cover kind={p.cover} />
                   <span class="feat-num">★ {t('projects.featured', undefined, lang)}</span>
                   {p.liveUrl && (
                     <a
@@ -244,7 +228,7 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale }) => {
                 <div class="proj-meta-col">
                   <div class="year">{p.year}</div>
                   <div>{p.role}</div>
-                  <div>{localizedStatus(p.status, lang)}</div>
+                  <div>{getStatusLabel(p.status, lang)}</div>
                 </div>
                 <div class="proj-arrow">→</div>
               </div>

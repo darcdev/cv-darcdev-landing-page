@@ -1,9 +1,12 @@
 /**
  * i18n configuration: registry of supported locales for the CV landing page.
  *
- * Adding a new language is one entry here + one JSON file under ./locales/.
- * Exactly one entry MUST have `default: true`; that locale is rendered by Astro
- * at build time and is the fallback when a key is missing in another locale.
+ * Adding a new language is one entry here + one JSON file under ./locales/ +
+ * one entry in each per-locale map under src/data/{profile,experience,skills,projects}.ts.
+ * TypeScript will fail the build if any data map is missing the new locale.
+ *
+ * Exactly one entry MUST have `default: true`; that locale is the SSG fallback
+ * and the value used when a key/entry is missing in another locale.
  */
 
 export type Locale = {
@@ -16,14 +19,29 @@ export type Locale = {
 };
 
 /** Authoritative list of supported locales. */
-export const locales: ReadonlyArray<Locale> = [
+export const locales = [
   { code: 'es', label: 'Español', default: true },
   { code: 'en', label: 'English' },
-] as const;
+] as const satisfies ReadonlyArray<Locale>;
+
+/** Literal-union of every supported locale code, derived from `locales`. */
+export type LocaleCode = (typeof locales)[number]['code'];
 
 /** Code of the default / fallback locale. Always present in supportedCodes. */
-export const defaultLocale: string =
-  locales.find((l) => l.default)?.code ?? 'es';
+export const defaultLocale: LocaleCode =
+  (locales.find((l) => 'default' in l && l.default)?.code ?? 'es') as LocaleCode;
 
 /** Convenience: every supported locale code, derived from `locales`. */
-export const supportedCodes: ReadonlyArray<string> = locales.map((l) => l.code);
+export const supportedCodes: ReadonlyArray<LocaleCode> = locales.map(
+  (l) => l.code,
+);
+
+/** Type guard: narrows an arbitrary string to a known LocaleCode. */
+export function isLocaleCode(value: string): value is LocaleCode {
+  return (supportedCodes as ReadonlyArray<string>).includes(value);
+}
+
+/** Returns the input if it is a known LocaleCode, otherwise the default. */
+export function resolveLocale(value: string | undefined): LocaleCode {
+  return value && isLocaleCode(value) ? value : defaultLocale;
+}

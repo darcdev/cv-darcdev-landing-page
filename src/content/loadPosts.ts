@@ -9,7 +9,7 @@
  * are async and tree-shaken from the browser bundle).
  */
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
-import { defaultLocale, supportedCodes } from '../i18n/config';
+import { defaultLocale, supportedCodes, isLocaleCode } from '../i18n/config';
 
 export type CoverPattern = 'rag' | 'spec' | 'mcp' | 'arch' | 'oss' | 'pr';
 
@@ -71,7 +71,7 @@ export async function loadPostsByLocale(): Promise<PostsByLocale> {
   for (const entry of all) {
     const parsed = splitEntryId(entry.id);
     if (!parsed) continue;
-    if (!supportedCodes.includes(parsed.locale)) continue;
+    if (!isLocaleCode(parsed.locale)) continue;
     byLocale[parsed.locale].push(toMeta(entry, parsed.locale, parsed.slug));
   }
 

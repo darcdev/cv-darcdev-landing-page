@@ -4,7 +4,9 @@ import TimelineItem from '../molecules/TimelineItem.astro';
 import SkillCard from '../molecules/SkillCard.astro';
 import Reveal from '../islands/Reveal';
 import { t } from '../../i18n/translate';
-import { localizedExperience, localizedSkills, localizedProfile } from '../../data/i18n';
+import { getProfile } from '../../data/profile';
+import { getExperiences } from '../../data/experience';
+import { getSkills } from '../../data/skills';
 import { defaultLocale } from '../../i18n/config';
 
 interface Props {
@@ -12,9 +14,9 @@ interface Props {
 }
 
 const { locale = defaultLocale } = Astro.props;
-const PROFILE = localizedProfile(locale);
-const EXPERIENCE = localizedExperience(locale);
-const SKILLS = localizedSkills(locale);
+const PROFILE = getProfile(locale);
+const EXPERIENCE = getExperiences(locale);
+const SKILLS = getSkills(locale);
 ---
 
 <section id="about" class="section section-divider" data-screen-label="02 about">

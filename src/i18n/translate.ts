@@ -1,62 +1,33 @@
 /**
- * Server-side / build-time translation helper used inside .astro files.
+ * Translation helper. Pure JSON-catalog merge — no data dependency.
  *
- * Catalogs are bundled at build time via static JSON imports. Calling t(key)
- * inside an Astro template runs at SSG time and inlines the default-locale
- * string into the generated HTML, so the page is fully readable with JS off.
+ * Catalogs live under ./locales/<code>.json and are imported statically so
+ * tree-shaking + SSG inlining work as expected. Adding a new locale = adding
+ * one file here and one entry in ./config.ts.
  *
- * The browser runtime in ./client.ts handles locale switching at runtime by
- * walking [data-i18n] markers and swapping textContent — t() is not called on
- * the client.
+ * t(key, params?, locale?) resolves a key for `locale`, falling back to the
+ * default locale when missing, then to the key itself.
  */
 
-import { defaultLocale, supportedCodes } from './config';
+import {
+  defaultLocale,
+  resolveLocale,
+  supportedCodes,
+  type LocaleCode,
+} from './config';
 import esCatalog from './locales/es.json';
 import enCatalog from './locales/en.json';
-import { EXPERIENCE } from '../data/experience';
-import { SKILLS } from '../data/skills';
-import { localizedExperience, localizedSkills } from '../data/i18n';
 
 type Catalog = Record<string, string>;
 
-/**
- * Build a per-locale catalog by merging the static UI strings (from
- * locales/<code>.json) with derived data keys (experience.N.role, skills.N.group, etc.)
- * generated from the locale-aware data accessors. This keeps the data files
- * as the source of truth without duplicating their content into JSON.
- */
-function buildDataKeys(locale: string): Catalog {
-  const out: Catalog = {};
-
-  const exp = locale === defaultLocale ? EXPERIENCE : localizedExperience(locale);
-  exp.forEach((e, i) => {
-    out[`experience.${i}.role`] = e.role;
-    out[`experience.${i}.period`] = e.period;
-    out[`experience.${i}.location`] = e.location;
-    e.highlights.forEach((h, hi) => {
-      out[`experience.${i}.h.${hi}`] = h;
-    });
-  });
-
-  const skills = locale === defaultLocale ? SKILLS : localizedSkills(locale);
-  skills.forEach((s, i) => {
-    out[`skills.${i}.group`] = s.group;
-  });
-
-  return out;
-}
-
-const baseCatalogs: Record<string, Catalog> = {
+const baseCatalogs: Record<LocaleCode, Catalog> = {
   es: esCatalog as Catalog,
   en: enCatalog as Catalog,
 };
 
-const catalogs: Record<string, Catalog> = Object.fromEntries(
-  supportedCodes.map((code) => [
-    code,
-    { ...(baseCatalogs[code] ?? {}), ...buildDataKeys(code) },
-  ]),
-);
+const catalogs: Record<LocaleCode, Catalog> = Object.fromEntries(
+  supportedCodes.map((code) => [code, baseCatalogs[code] ?? {}]),
+) as Record<LocaleCode, Catalog>;
 
 /**
  * Resolve a translation key for a specific locale.
@@ -71,7 +42,7 @@ export function t(
   params?: Record<string, string | number>,
   locale: string = defaultLocale,
 ): string {
-  const code = supportedCodes.includes(locale) ? locale : defaultLocale;
+  const code = resolveLocale(locale);
   const catalog = catalogs[code] ?? {};
   let value = catalog[key];
 
@@ -105,10 +76,10 @@ export function t(
 
 /** Returns the parsed catalog for a given locale code. */
 export function getCatalog(locale: string): Catalog {
-  return catalogs[locale] ?? {};
+  return catalogs[resolveLocale(locale)] ?? {};
 }
 
-/** Returns all catalogs keyed by locale code. Used by BaseLayout to embed them. */
-export function getAllCatalogs(): Record<string, Catalog> {
+/** Returns all catalogs keyed by locale code. */
+export function getAllCatalogs(): Record<LocaleCode, Catalog> {
   return { ...catalogs };
 }
