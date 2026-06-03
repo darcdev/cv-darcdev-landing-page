@@ -104,22 +104,34 @@ export default function Nav() {
   }, []);
 
   useEffect(() => {
-    const sections = items.map(it => document.getElementById(it.id)).filter(Boolean) as HTMLElement[];
-    if (sections.length === 0) return;
+    const sectionIds = ["home", "about", "projects", "blog", "contact"];
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActive(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.3, rootMargin: "-80px 0px -50% 0px" }
-    );
+    const updateActive = () => {
+      let currentId = "home";
+      const y = window.scrollY + window.innerHeight * 0.45;
+      const atPageBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 8;
 
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+      if (atPageBottom) {
+        setActive("contact");
+        return;
+      }
+
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= y) currentId = id;
+      }
+
+      setActive(currentId);
+    };
+
+    window.addEventListener("scroll", updateActive, { passive: true });
+    window.addEventListener("resize", updateActive);
+    updateActive();
+
+    return () => {
+      window.removeEventListener("scroll", updateActive);
+      window.removeEventListener("resize", updateActive);
+    };
   }, []);
 
   // Close lang dropdown on outside click or escape
@@ -191,6 +203,18 @@ export default function Nav() {
     setMenuOpen(false);
   };
 
+  const navigateToSection = (id: string) => {
+    if (window.location.pathname === "/") {
+      scrollTo(id);
+      setActive(id);
+      return;
+    }
+
+    window.location.href = id === "home" ? "/" : `/#${id}`;
+  };
+
+  const navigateToContact = () => navigateToSection("contact");
+
   const toggleMenu = () => {
     setMenuOpen((v) => !v);
   };
@@ -201,10 +225,15 @@ export default function Nav() {
     <>
       <nav class="nav">
         <div class="nav-inner">
-          <a class="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); scrollTo("home"); }}>
-            <span class="dot"></span>
-            <span class="hide-mobile">diego.cabrera</span>
-            <span class="show-mobile">d.c</span>
+          <a class="nav-logo" href="/" onClick={(e) => { e.preventDefault(); navigateToSection("home"); }}>
+            <img
+              class="nav-logo-img"
+              src={theme === "dark" ? "/darcdev-black.png" : "/darcdev-light.png"}
+              alt="Diego Cabrera"
+              width="132"
+              height="28"
+            />
+            <span class="nav-logo-name">Darcdev</span>
           </a>
           
           {/* Desktop nav links - hidden on mobile */}
@@ -213,7 +242,7 @@ export default function Nav() {
               <button
                 key={it.id}
                 class={`nav-link ${active === it.id ? "active" : ""}`}
-                onClick={() => scrollTo(it.id)}
+                onClick={() => navigateToSection(it.id)}
               >
                 {it.label}
               </button>
@@ -315,7 +344,7 @@ export default function Nav() {
               <button
                 key={it.id}
                 class={`mobile-menu-link ${active === it.id ? "active" : ""}`}
-                onClick={() => scrollTo(it.id)}
+                onClick={() => navigateToSection(it.id)}
               >
                 {it.label}
               </button>

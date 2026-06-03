@@ -10,8 +10,8 @@ interface ContactItem {
 const CONTACTS: ContactItem[] = [
   { k: "Email", v: "diegoandresrojas2000@gmail.com", href: "mailto:diegoandresrojas2000@gmail.com", copy: true },
   { k: "Teléfono", v: "+57 320 418 0598", href: "tel:+573204180598", copy: true },
-  { k: "LinkedIn", v: "linkedin.com/in/diego-cabrera →", href: "https://linkedin.com/in/diego-cabrera" },
-  { k: "GitHub", v: "github.com/diegocabrera →", href: "https://github.com/diegocabrera" },
+  { k: "LinkedIn", v: "linkedin.com/in/diego-andres-rojas →", href: "https://www.linkedin.com/in/diego-andres-rojas/" },
+  { k: "GitHub", v: "github.com/darcdev →", href: "https://github.com/darcdev" },
   { k: "Ubicación", v: "Bogotá, Colombia · GMT-5", href: null },
 ];
 

@@ -1,15 +1,15 @@
 ---
-import Nav from '../components/islands/Nav';
-import Footer from '../components/organisms/Footer.astro';
+import Nav from "../components/islands/Nav";
+import Footer from "../components/organisms/Footer.astro";
 
 interface Props {
   title?: string;
   description?: string;
 }
 
-const { 
-  title = "Diego Cabrera · Tech Lead · IA Aplicada",
-  description = "Tech Lead con 7+ años construyendo soluciones full-stack. Especializado en RAG, MCP y Spec-Driven Development."
+const {
+  title = "Diego Cabrera · Tech Lead · IA",
+  description = "Tech Lead con 7+ años construyendo soluciones full-stack. Especializado en RAG, MCP y Spec-Driven Development.",
 } = Astro.props;
 ---
 
@@ -20,20 +20,23 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    
+
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+
     <title>{title}</title>
-    
+
     <script is:inline>
-      (function() {
-        const theme = localStorage.getItem('theme') || 
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', theme);
+      (function () {
+        const theme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
   </head>
@@ -47,5 +50,5 @@ const {
 </html>
 
 <style is:global>
-  @import '../styles/global.css';
+  @import "../styles/global.css";
 </style>
