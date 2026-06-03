@@ -6,6 +6,8 @@ interface Props {
   period: string;
   highlights: string[];
   current?: boolean;
+  /** Optional index — kept for backwards compat; unused now. */
+  index?: number;
 }
 
 const { role, company, location, period, highlights, current = false } = Astro.props;
@@ -16,7 +18,7 @@ const { role, company, location, period, highlights, current = false } = Astro.p
     <div class="tl-role">{role}</div>
     <div class="tl-period">{period}</div>
   </div>
-  <div class="tl-company">{company} · {location}</div>
+  <div class="tl-company">{company} · <span>{location}</span></div>
   <ul class="tl-list">
     {highlights.map((h) => <li>{h}</li>)}
   </ul>

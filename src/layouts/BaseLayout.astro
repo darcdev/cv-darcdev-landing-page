@@ -1,33 +1,48 @@
 ---
 import Nav from "../components/islands/Nav";
 import Footer from "../components/organisms/Footer.astro";
+import { defaultLocale } from "../i18n/config";
+import { t } from "../i18n/translate";
 
 interface Props {
+  /** Active locale for this route. Defaults to the project default. */
+  locale?: string;
   title?: string;
   description?: string;
+  /** Translation key for <title>. Overrides `title` prop if provided. */
+  titleKey?: string;
+  /** Translation key for meta description. Overrides `description` prop if provided. */
+  descriptionKey?: string;
 }
 
 const {
-  title = "Diego Cabrera · Tech Lead · IA",
-  description = "Tech Lead con 7+ años construyendo soluciones full-stack. Especializado en RAG, MCP y Spec-Driven Development.",
+  locale = defaultLocale,
+  title,
+  description,
+  titleKey = "meta.title",
+  descriptionKey = "meta.description",
 } = Astro.props;
+
+const renderedTitle = title ?? t(titleKey, undefined, locale);
+const renderedDescription = description ?? t(descriptionKey, undefined, locale);
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
+    <meta name="description" content={renderedDescription} />
     <meta name="generator" content={Astro.generator} />
 
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={renderedTitle} />
+    <meta property="og:description" content={renderedDescription} />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content={locale} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.png" />
 
-    <title>{title}</title>
+    <title>{renderedTitle}</title>
 
     <script is:inline>
       (function () {
@@ -42,9 +57,9 @@ const {
   </head>
   <body>
     <div class="app">
-      <Nav client:load />
+      <Nav locale={locale} client:load />
       <slot />
-      <Footer />
+      <Footer locale={locale} />
     </div>
   </body>
 </html>

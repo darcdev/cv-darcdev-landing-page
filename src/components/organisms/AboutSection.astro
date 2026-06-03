@@ -3,37 +3,45 @@ import StatCell from '../molecules/StatCell.astro';
 import TimelineItem from '../molecules/TimelineItem.astro';
 import SkillCard from '../molecules/SkillCard.astro';
 import Reveal from '../islands/Reveal';
-import { EXPERIENCE, SKILLS, PROFILE } from '../../data';
+import { t } from '../../i18n/translate';
+import { localizedExperience, localizedSkills, localizedProfile } from '../../data/i18n';
+import { defaultLocale } from '../../i18n/config';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale = defaultLocale } = Astro.props;
+const PROFILE = localizedProfile(locale);
+const EXPERIENCE = localizedExperience(locale);
+const SKILLS = localizedSkills(locale);
 ---
 
 <section id="about" class="section section-divider" data-screen-label="02 about">
   <div class="container">
     <Reveal client:visible>
-      <div class="eyebrow"><span class="idx">02</span> · Sobre mí</div>
-      <h2 class="sect-title" style="margin-top: 18px;">
-        Tech Lead que <span class="serif-it">codea</span>,<br/>
-        arquitecto que <span class="serif-it">escucha</span>.
-      </h2>
+      <div class="eyebrow">
+        <span class="idx">02</span>
+        <span> · {t('about.eyebrow', undefined, locale)}</span>
+      </div>
+      <h2 class="sect-title" style="margin-top: 18px;" set:html={t('about.title', undefined, locale)} />
     </Reveal>
 
     <div class="about-grid" style="margin-top: 56px;">
       <Reveal client:visible>
-        <p class="bio-large">
-          Soy <strong>Diego Cabrera</strong>. He construido sistemas para entidades del Gobierno Colombiano, alcaldías y empresas privadas durante los últimos 7 años.
-          <em> Mi día se reparte entre arquitectura, código hands-on y liderar equipos que aprenden a trabajar con agentes de IA.</em>
-        </p>
+        <p class="bio-large" set:html={t('about.bio', undefined, locale)} />
       </Reveal>
 
       <Reveal client:visible delay={150}>
         <div class="about-card">
-          <h4>Información</h4>
+          <h4>{t('about.info.title', undefined, locale)}</h4>
           <div class="kv-list">
-            <div class="row"><span class="k">Ubicación</span><span class="v">{PROFILE.location}</span></div>
-            <div class="row"><span class="k">Email</span><span class="v">{PROFILE.email}</span></div>
-            <div class="row"><span class="k">Teléfono</span><span class="v">{PROFILE.phone}</span></div>
-            <div class="row"><span class="k">Idiomas</span><span class="v">ES nativo · EN B1</span></div>
-            <div class="row"><span class="k">Estado</span><span class="v" style="color: #2ea050;">● disponible</span></div>
-            <div class="row"><span class="k">Modalidad</span><span class="v">remoto / híbrido</span></div>
+            <div class="row"><span class="k">{t('about.info.location', undefined, locale)}</span><span class="v">{PROFILE.location}</span></div>
+            <div class="row"><span class="k">{t('about.info.email', undefined, locale)}</span><span class="v">{PROFILE.email}</span></div>
+            <div class="row"><span class="k">{t('about.info.phone', undefined, locale)}</span><span class="v">{PROFILE.phone}</span></div>
+            <div class="row"><span class="k">{t('about.info.languages', undefined, locale)}</span><span class="v">{t('about.info.languages.value', undefined, locale)}</span></div>
+            <div class="row"><span class="k">{t('about.info.status', undefined, locale)}</span><span class="v" style="color: #2ea050;">{t('about.info.status.value', undefined, locale)}</span></div>
+            <div class="row"><span class="k">{t('about.info.modality', undefined, locale)}</span><span class="v">{t('about.info.modality.value', undefined, locale)}</span></div>
           </div>
         </div>
       </Reveal>
@@ -41,19 +49,20 @@ import { EXPERIENCE, SKILLS, PROFILE } from '../../data';
 
     <Reveal client:visible delay={200}>
       <div class="stats-grid">
-        <StatCell number="7+" label="años experiencia" />
-        <StatCell number="20+" label="proyectos en producción" />
-        <StatCell number="5" label="trámites MinTIC liderados" />
-        <StatCell number="∞" label="prompts iterados" mono />
+        <StatCell number="7+"  labelKey="about.stats.years"    locale={locale} />
+        <StatCell number="20+" labelKey="about.stats.projects" locale={locale} />
+        <StatCell number="5"   labelKey="about.stats.mintic"   locale={locale} />
+        <StatCell number="∞"   labelKey="about.stats.prompts"  locale={locale} mono />
       </div>
     </Reveal>
 
     <Reveal client:visible>
       <div style="margin-top: 90px;">
-        <div class="eyebrow"><span class="idx">02.1</span> · Experiencia</div>
-        <h3 class="sect-title" style="margin-top: 16px; font-size: clamp(28px, 3.4vw, 40px);">
-          Una década escribiendo software<br/>que <span class="serif-it">importa</span>.
-        </h3>
+        <div class="eyebrow">
+          <span class="idx">02.1</span>
+          <span> · {t('about.experience.eyebrow', undefined, locale)}</span>
+        </div>
+        <h3 class="sect-title" style="margin-top: 16px; font-size: clamp(28px, 3.4vw, 40px);" set:html={t('about.experience.title', undefined, locale)} />
       </div>
     </Reveal>
 
@@ -67,6 +76,7 @@ import { EXPERIENCE, SKILLS, PROFILE } from '../../data';
             period={e.period}
             highlights={e.highlights}
             current={i === 0}
+            index={i}
           />
         </Reveal>
       ))}
@@ -74,9 +84,12 @@ import { EXPERIENCE, SKILLS, PROFILE } from '../../data';
 
     <Reveal client:visible>
       <div style="margin-top: 90px;">
-        <div class="eyebrow"><span class="idx">02.2</span> · Stack</div>
+        <div class="eyebrow">
+          <span class="idx">02.2</span>
+          <span> · {t('about.stack.eyebrow', undefined, locale)}</span>
+        </div>
         <h3 class="sect-title" style="margin-top: 16px; font-size: clamp(28px, 3.4vw, 40px);">
-          Herramientas que uso a diario.
+          {t('about.stack.title', undefined, locale)}
         </h3>
       </div>
     </Reveal>
@@ -84,7 +97,7 @@ import { EXPERIENCE, SKILLS, PROFILE } from '../../data';
     <div class="skills-grid">
       {SKILLS.map((s, i) => (
         <Reveal client:visible delay={i * 50}>
-          <SkillCard group={s.group} items={s.items} />
+          <SkillCard group={s.group} items={s.items} index={i} />
         </Reveal>
       ))}
     </div>

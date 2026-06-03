@@ -4,15 +4,20 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro check && npm run i18n:check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "i18n:check": "tsx scripts/check-i18n.ts"
   },
   "dependencies": {
-    "astro": "^4.16.0",
     "@astrojs/check": "^0.9.3",
     "@astrojs/preact": "^3.5.0",
+    "astro": "^4.16.0",
     "preact": "^10.24.0",
     "typescript": "^5.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "tsx": "^4.19.0"
   }
 }

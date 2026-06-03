@@ -1,9 +1,17 @@
 ---
+import { defaultLocale } from '../../i18n/config';
+import { t } from '../../i18n/translate';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale = defaultLocale } = Astro.props;
 ---
 
 <footer class="footer">
   <div class="container footer-inner">
-    <div>© 2026 · Diego Cabrera · Bogotá, Colombia</div>
-    <div>Construido con cuidado · Astro + Preact + tu base de conocimiento</div>
+    <div>{t('footer.copy', undefined, locale)}</div>
+    <div>{t('footer.built', undefined, locale)}</div>
   </div>
 </footer>

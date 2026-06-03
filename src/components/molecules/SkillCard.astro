@@ -2,6 +2,8 @@
 interface Props {
   group: string;
   items: string[];
+  /** Optional index — kept for backwards compat; unused now (no more data-i18n markers). */
+  index?: number;
 }
 
 const { group, items } = Astro.props;

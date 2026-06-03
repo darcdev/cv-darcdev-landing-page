@@ -8,6 +8,16 @@ import StatusPill from '../atoms/StatusPill.astro';
 import Icon from '../atoms/Icon.astro';
 import DotGridBg from '../islands/DotGridBg';
 import Terminal from '../islands/Terminal';
+import { defaultLocale } from '../../i18n/config';
+import { t } from '../../i18n/translate';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale = defaultLocale } = Astro.props;
+const homeHref = `/${locale}/#projects`;
+const contactHref = `/${locale}/#contact`;
 ---
 
 <section id="home" class="hero" data-screen-label="01 hero">
@@ -16,37 +26,34 @@ import Terminal from '../islands/Terminal';
   <div class="container">
     <div class="hero-grid">
       <div>
-        <div class="eyebrow"><span class="idx">01</span> · Tech Lead · Bogotá</div>
-        <h1 class="hero-headline" style="margin-top: 22px;">
-          Construyo<br/>
-          <span class="underline">agentes</span> que llevan<br/>
-          la IA a producto real.
-        </h1>
+        <div class="eyebrow">
+          <span class="idx">01</span>
+          <span> · {t('hero.eyebrow', undefined, locale)}</span>
+        </div>
+        <h1 class="hero-headline" style="margin-top: 22px;" set:html={t('hero.headline', undefined, locale)} />
         <p class="hero-sub">
-          7+ años liderando full-stack para gobierno y empresa privada.
-          Hoy aplico RAG, MCP y Spec-Driven Development al ciclo de
-          desarrollo — desde la arquitectura hasta el commit.
+          {t('hero.sub', undefined, locale)}
         </p>
         <div class="hero-meta">
-          <Button variant="primary" href="#projects">
-            Ver proyectos
+          <Button variant="primary" href={homeHref}>
+            <span>{t('hero.cta.projects', undefined, locale)}</span>
             <Icon name="arrow" size={14} />
           </Button>
-          <Button variant="outline" href="#contact">
-            Hablemos
+          <Button variant="outline" href={contactHref}>
+            <span>{t('hero.cta.contact', undefined, locale)}</span>
           </Button>
           <StatusPill>
-            Disponible Q3/Q4 2026
+            <span>{t('hero.status', undefined, locale)}</span>
           </StatusPill>
         </div>
       </div>
       <div class="hero-side">
         <AvatarSVG />
-        <HeroSocial />
+        <HeroSocial locale={locale} />
       </div>
     </div>
 
-    <Terminal client:visible />
+    <Terminal locale={locale} client:visible />
   </div>
   <StripMarquee />
 </section>

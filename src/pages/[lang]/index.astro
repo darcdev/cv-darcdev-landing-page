@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeroSection from '../../components/organisms/HeroSection.astro';
+import AboutSection from '../../components/organisms/AboutSection.astro';
+import ContactSection from '../../components/organisms/ContactSection.astro';
+import AskSection from '../../components/organisms/AskSection.astro';
+import ProjectsSection from '../../components/islands/ProjectsSection';
+import BlogSection from '../../components/islands/BlogSection';
+import { loadPostsByLocale } from '../../content/loadPosts';
+import { supportedCodes, defaultLocale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return supportedCodes.map((code) => ({ params: { lang: code } }));
+}
+
+const lang = (Astro.params.lang as string | undefined) ?? defaultLocale;
+
+const postsByLocale = await loadPostsByLocale();
+const localizedPosts = postsByLocale[lang] ?? postsByLocale[defaultLocale] ?? [];
+
+// Localized "All" labels (kept tiny — extend when adding new languages).
+const ALL_LABELS: Record<string, string> = { es: 'Todos', en: 'All' };
+const allLabel = ALL_LABELS[lang] ?? ALL_LABELS[defaultLocale] ?? 'All';
+---
+
+<BaseLayout locale={lang}>
+  <HeroSection locale={lang} />
+  <AboutSection locale={lang} />
+  <ProjectsSection locale={lang} client:visible />
+  <BlogSection
+    posts={localizedPosts}
+    allLabel={allLabel}
+    locale={lang}
+    client:visible
+  />
+  <AskSection locale={lang} />
+  <ContactSection locale={lang} />
+</BaseLayout>

@@ -1,50 +1,65 @@
 import { useState } from 'preact/hooks';
+import type { FunctionComponent } from 'preact';
+import { t } from '../../i18n/translate';
 
 interface ContactItem {
-  k: string;
+  /** Translation key for the label. */
+  labelKey: string;
   v: string;
   href: string | null;
   copy?: boolean;
 }
 
+interface Props {
+  /** Active locale code. */
+  locale: string;
+}
+
 const CONTACTS: ContactItem[] = [
-  { k: "Email", v: "diegoandresrojas2000@gmail.com", href: "mailto:diegoandresrojas2000@gmail.com", copy: true },
-  { k: "Teléfono", v: "+57 320 418 0598", href: "tel:+573204180598", copy: true },
-  { k: "LinkedIn", v: "linkedin.com/in/diego-andres-rojas →", href: "https://www.linkedin.com/in/diego-andres-rojas/" },
-  { k: "GitHub", v: "github.com/darcdev →", href: "https://github.com/darcdev" },
-  { k: "Ubicación", v: "Bogotá, Colombia · GMT-5", href: null },
+  { labelKey: 'contact.links.email',    v: 'diegoandresrojas2000@gmail.com',                  href: 'mailto:diegoandresrojas2000@gmail.com', copy: true },
+  { labelKey: 'contact.links.phone',    v: '+57 320 418 0598',                                 href: 'tel:+573204180598',                       copy: true },
+  { labelKey: 'contact.links.linkedin', v: 'linkedin.com/in/diego-andres-rojas →',             href: 'https://www.linkedin.com/in/diego-andres-rojas/' },
+  { labelKey: 'contact.links.github',   v: 'github.com/darcdev →',                             href: 'https://github.com/darcdev' },
+  { labelKey: 'contact.links.location', v: 'Bogotá, Colombia · GMT-5',                         href: null },
 ];
 
-export default function ContactLinks() {
-  const [copied, setCopied] = useState("");
+const ContactLinks: FunctionComponent<Props> = ({ locale }) => {
+  const [copied, setCopied] = useState('');
 
   const copy = (txt: string, label: string) => {
     navigator.clipboard?.writeText(txt);
     setCopied(label);
-    setTimeout(() => setCopied(""), 1400);
+    setTimeout(() => setCopied(''), 1400);
   };
+
+  const copiedMsg = t('contact.links.copied', undefined, locale);
 
   return (
     <div class="contact-links">
-      {CONTACTS.map((it) => (
-        <a
-          key={it.k}
-          class="contact-link"
-          href={it.href || "#"}
-          target={it.href && it.href.startsWith("http") ? "_blank" : undefined}
-          rel="noreferrer"
-          onClick={(e) => {
-            if (!it.href) { e.preventDefault(); return; }
-            if (it.copy) {
-              e.preventDefault();
-              copy(it.v.replace(/[→\s]+$/, ""), it.k);
-            }
-          }}
-        >
-          <span class="k">{it.k}</span>
-          <span class="v">{copied === it.k ? "✓ copiado al portapapeles" : it.v}</span>
-        </a>
-      ))}
+      {CONTACTS.map((it) => {
+        const label = t(it.labelKey, undefined, locale);
+        return (
+          <a
+            key={it.labelKey}
+            class="contact-link"
+            href={it.href || '#'}
+            target={it.href && it.href.startsWith('http') ? '_blank' : undefined}
+            rel="noreferrer"
+            onClick={(e) => {
+              if (!it.href) { e.preventDefault(); return; }
+              if (it.copy) {
+                e.preventDefault();
+                copy(it.v.replace(/[→\s]+$/, ''), it.labelKey);
+              }
+            }}
+          >
+            <span class="k">{label}</span>
+            <span class="v">{copied === it.labelKey ? copiedMsg : it.v}</span>
+          </a>
+        );
+      })}
     </div>
   );
-}
+};
+
+export default ContactLinks;

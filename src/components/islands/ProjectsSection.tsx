@@ -1,20 +1,27 @@
 import { useState, useMemo, useEffect } from 'preact/hooks';
-import { PROJECTS, PROJECT_TYPES } from '../../data';
+import type { FunctionComponent } from 'preact';
+import { localizedProjects, localizedProjectTypes, localizedAllLabel, localizedStatus } from '../../data/i18n';
 import type { Project } from '../../data/projects';
+import { t } from '../../i18n/translate';
+
+interface Props {
+  /** Active locale code. */
+  locale: string;
+}
 
 function pickCover(p: Project): string {
   const map: Record<string, string> = {
-    "rag-agent": "rag",
-    "spec-driven": "spec",
-    "ai-pr-review": "pr",
-    "jackcore": "arch",
-    "govcodepro": "mcp",
-    "trip-planner": "oss",
-    "luminara": "spec",
-    "albertcts": "rag",
-    "b2b-materiales": "arch",
+    'rag-agent': 'rag',
+    'spec-driven': 'spec',
+    'ai-pr-review': 'pr',
+    'jackcore': 'arch',
+    'govcodepro': 'mcp',
+    'trip-planner': 'oss',
+    'luminara': 'spec',
+    'albertcts': 'rag',
+    'b2b-materiales': 'arch',
   };
-  return map[p.id] || "rag";
+  return map[p.id] || 'rag';
 }
 
 function Cover({ kind }: { kind: string }) {
@@ -27,7 +34,7 @@ function Filters({ options, value, onChange }: { options: string[]; value: strin
       {options.map((o) => (
         <button
           key={o}
-          class={`chip ${value === o ? "active" : ""}`}
+          class={`chip ${value === o ? 'active' : ''}`}
           onClick={() => onChange(o)}
         >{o}</button>
       ))}
@@ -35,31 +42,31 @@ function Filters({ options, value, onChange }: { options: string[]; value: strin
   );
 }
 
-function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
+function ProjectModal({ project, lang, onClose }: { project: Project; lang: string; onClose: () => void }) {
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
     return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
     };
   }, []);
 
   return (
     <div class="modal-backdrop" onClick={onClose}>
       <div class="modal" onClick={(e) => e.stopPropagation()}>
-        <button class="modal-close" onClick={onClose} aria-label="Cerrar">
+        <button class="modal-close" onClick={onClose} aria-label={t('projects.modal.close', undefined, lang)}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
-        <div class="eyebrow">/ proyecto · {project.year}</div>
+        <div class="eyebrow">{t('projects.modal.eyebrow', undefined, lang)} · {project.year}</div>
         <h2>{project.title}</h2>
         <div class="modal-tagline">{project.tagline}</div>
         {project.liveUrl && (
           <a class="modal-live-btn" href={project.liveUrl} target="_blank" rel="noreferrer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
-            <span>Ver sitio en vivo</span>
-            <span class="modal-live-host">{project.liveUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span>
+            <span>{t('projects.modal.live', undefined, lang)}</span>
+            <span class="modal-live-host">{project.liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
           </a>
         )}
         <div class="modal-cover">
@@ -68,19 +75,19 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
         <div class="modal-cols">
           <div>
             <div class="modal-section">
-              <h4>Resumen</h4>
+              <h4>{t('projects.modal.summary', undefined, lang)}</h4>
               <p>{project.summary}</p>
             </div>
             <div class="modal-section">
-              <h4>Problema</h4>
+              <h4>{t('projects.modal.problem', undefined, lang)}</h4>
               <p>{project.problem}</p>
             </div>
             <div class="modal-section">
-              <h4>Solución</h4>
+              <h4>{t('projects.modal.solution', undefined, lang)}</h4>
               <p>{project.solution}</p>
             </div>
             <div class="modal-section">
-              <h4>Impacto</h4>
+              <h4>{t('projects.modal.impact', undefined, lang)}</h4>
               <ul>
                 {project.impact.map((i, idx) => <li key={idx}>{i}</li>)}
               </ul>
@@ -88,20 +95,20 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
           </div>
           <aside class="modal-side">
             <div class="modal-section">
-              <h4>Rol</h4>
+              <h4>{t('projects.modal.role', undefined, lang)}</h4>
               <p style={{ fontSize: 14 }}>{project.role}</p>
             </div>
             <div class="modal-section">
-              <h4>Cliente</h4>
+              <h4>{t('projects.modal.client', undefined, lang)}</h4>
               <p style={{ fontSize: 14 }}>{project.client}</p>
             </div>
             <div class="modal-section">
-              <h4>Estado</h4>
-              <p style={{ fontSize: 14 }}>{project.status}</p>
+              <h4>{t('projects.modal.status', undefined, lang)}</h4>
+              <p style={{ fontSize: 14 }}>{localizedStatus(project.status, lang)}</p>
             </div>
             <div class="modal-section" style={{ marginBottom: 0 }}>
-              <h4>Stack</h4>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+              <h4>{t('projects.modal.stack', undefined, lang)}</h4>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
                 {project.stack.map((s) => <span key={s} class="skill-chip">{s}</span>)}
               </div>
             </div>
@@ -112,31 +119,32 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
   );
 }
 
-export default function ProjectsSection() {
-  const [filter, setFilter] = useState("Todos");
-  const [search, setSearch] = useState("");
-  const [modalProject, setModalProject] = useState<Project | null>(null);
+const ProjectsSection: FunctionComponent<Props> = ({ locale }) => {
+  const lang = locale;
+  const allLabel = localizedAllLabel(lang);
+  const [filter, setFilter] = useState<string>(allLabel);
+  const [search, setSearch] = useState('');
+  const [modalId, setModalId] = useState<string | null>(null);
+
+  const projects = useMemo(() => localizedProjects(lang), [lang]);
+  const projectTypes = useMemo(() => localizedProjectTypes(lang), [lang]);
 
   const filtered = useMemo(() => {
-    let r = PROJECTS;
-    if (filter !== "Todos") r = r.filter((p) => p.type === filter);
+    let r = projects;
+    if (filter !== allLabel) r = r.filter((p) => p.type === filter);
     if (search.trim()) {
       const s = search.toLowerCase();
       r = r.filter((p) =>
         p.title.toLowerCase().includes(s) ||
         p.tagline.toLowerCase().includes(s) ||
-        p.tags.some((t) => t.toLowerCase().includes(s))
+        p.tags.some((tg) => tg.toLowerCase().includes(s))
       );
     }
     return r;
-  }, [filter, search]);
+  }, [projects, filter, search, allLabel]);
 
-  const featured = PROJECTS.filter((p) => p.featured).slice(0, 3);
-
-  const openProject = (id: string) => {
-    const p = PROJECTS.find((proj) => proj.id === id);
-    if (p) setModalProject(p);
-  };
+  const featured = projects.filter((p) => p.featured).slice(0, 3);
+  const modalProject = modalId ? projects.find((p) => p.id === modalId) ?? null : null;
 
   return (
     <section id="projects" class="section section-divider" data-screen-label="03 projects">
@@ -144,16 +152,18 @@ export default function ProjectsSection() {
         <div class="reveal in">
           <div class="sect-head">
             <div>
-              <div class="eyebrow"><span class="idx">03</span> · Proyectos</div>
-              <h2 class="sect-title" style={{ marginTop: 18 }}>
-                Cosas que ya están <span class="serif-it">en producción</span>.
-              </h2>
+              <div class="eyebrow">
+                <span class="idx">03</span>
+                <span> · {t('projects.eyebrow', undefined, lang)}</span>
+              </div>
+              <h2 class="sect-title" style={{ marginTop: 18 }}
+                  dangerouslySetInnerHTML={{ __html: t('projects.title', undefined, lang) }} />
             </div>
-            <div class="search-wrap" style={{ display: "flex", gap: 12, alignItems: "center" }}>
-              <div class="search-wrap" style={{ position: "relative" }}>
+            <div class="search-wrap" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <div class="search-wrap" style={{ position: 'relative' }}>
                 <input
                   class="search-input"
-                  placeholder="Buscar proyecto, tag…"
+                  placeholder={t('projects.search.placeholder', undefined, lang)}
                   value={search}
                   onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
                 />
@@ -170,10 +180,10 @@ export default function ProjectsSection() {
         <div class="reveal in">
           <div class="featured-grid">
             {featured.map((p) => (
-              <div key={p.id} class="feat-card" onClick={() => openProject(p.id)}>
+              <div key={p.id} class="feat-card" onClick={() => setModalId(p.id)}>
                 <div class="feat-cover">
                   <Cover kind={pickCover(p)} />
-                  <span class="feat-num">★ FEATURED</span>
+                  <span class="feat-num">★ {t('projects.featured', undefined, lang)}</span>
                   {p.liveUrl && (
                     <a
                       class="feat-live"
@@ -183,7 +193,7 @@ export default function ProjectsSection() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
-                      <span>ver sitio</span>
+                      <span>{t('projects.view_site', undefined, lang)}</span>
                     </a>
                   )}
                 </div>
@@ -199,17 +209,17 @@ export default function ProjectsSection() {
         </div>
 
         <div class="reveal in">
-          <Filters options={PROJECT_TYPES} value={filter} onChange={setFilter} />
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 14 }}>
-            mostrando {filtered.length} / {PROJECTS.length}
+          <Filters options={projectTypes} value={filter} onChange={setFilter} />
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
+            {t('projects.showing', { count: filtered.length, total: projects.length }, lang)}
           </div>
         </div>
 
         <div class="proj-list">
           {filtered.map((p, i) => (
             <div key={p.id} class="reveal in">
-              <div class="proj-row" onClick={() => openProject(p.id)}>
-                <div class="proj-num">{String(i + 1).padStart(2, "0")}</div>
+              <div class="proj-row" onClick={() => setModalId(p.id)}>
+                <div class="proj-num">{String(i + 1).padStart(2, '0')}</div>
                 <div>
                   <div class="proj-title">
                     {p.title}
@@ -222,35 +232,37 @@ export default function ProjectsSection() {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
-                        <span>ver sitio</span>
+                        <span>{t('projects.view_site', undefined, lang)}</span>
                       </a>
                     )}
                   </div>
                   <div class="proj-tags">
-                    {p.tags.slice(0, 4).map((t) => <span key={t} class="proj-tag">{t}</span>)}
+                    {p.tags.slice(0, 4).map((tg) => <span key={tg} class="proj-tag">{tg}</span>)}
                   </div>
                 </div>
                 <div class="proj-tagline">{p.tagline}</div>
                 <div class="proj-meta-col">
                   <div class="year">{p.year}</div>
                   <div>{p.role}</div>
-                  <div>{p.status}</div>
+                  <div>{localizedStatus(p.status, lang)}</div>
                 </div>
                 <div class="proj-arrow">→</div>
               </div>
             </div>
           ))}
           {filtered.length === 0 && (
-            <div style={{ textAlign: "center", padding: 80, color: "var(--muted)" }}>
-              Sin resultados. Prueba con otro filtro.
+            <div style={{ textAlign: 'center', padding: 80, color: 'var(--muted)' }}>
+              {t('projects.empty', undefined, lang)}
             </div>
           )}
         </div>
       </div>
 
       {modalProject && (
-        <ProjectModal project={modalProject} onClose={() => setModalProject(null)} />
+        <ProjectModal project={modalProject} lang={lang} onClose={() => setModalId(null)} />
       )}
     </section>
   );
-}
+};
+
+export default ProjectsSection;

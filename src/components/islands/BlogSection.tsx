@@ -1,7 +1,16 @@
 import { useState, useMemo, useRef, useEffect } from 'preact/hooks';
-import type { ComponentChildren } from 'preact';
-import { POSTS, CATEGORIES } from '../../data';
-import type { Post, CoverPattern } from '../../data/posts';
+import type { ComponentChildren, FunctionComponent } from 'preact';
+import type { PostMeta, CoverPattern } from '../../content/loadPosts';
+import { t } from '../../i18n/translate';
+
+interface Props {
+  /** Posts already filtered to the active locale, sorted by pubDate desc. */
+  posts: PostMeta[];
+  /** Localized "All" label (e.g. "Todos", "All"). */
+  allLabel: string;
+  /** Active locale code (used for translating UI strings). */
+  locale: string;
+}
 
 function Cover({ kind, label }: { kind: CoverPattern; label?: string }) {
   return (
@@ -17,7 +26,7 @@ function Filters({ options, value, onChange }: { options: string[]; value: strin
       {options.map((o) => (
         <button
           key={o}
-          class={`chip ${value === o ? "active" : ""}`}
+          class={`chip ${value === o ? 'active' : ''}`}
           onClick={() => onChange(o)}
         >{o}</button>
       ))}
@@ -47,19 +56,19 @@ function Reveal({ children, delay = 0 }: { children: ComponentChildren; delay?: 
   }, [delay]);
 
   return (
-    <div ref={ref} class={`reveal ${seen ? "in" : ""}`}>
+    <div ref={ref} class={`reveal ${seen ? 'in' : ''}`}>
       {children}
     </div>
   );
 }
 
-function MagCard({ post, variant }: { post: Post; variant: 'big' | 'side' | 'base' }) {
-  const isBig = variant === "big";
+function MagCard({ post, variant, locale }: { post: PostMeta; variant: 'big' | 'side' | 'base'; locale: string }) {
+  const isBig = variant === 'big';
   return (
-    <a href={`/blog/${post.id}`} class={`mag-card mag-${variant}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <a href={`/${locale}/blog/${post.id}`} class={`mag-card mag-${variant}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div class="mag-cover">
         <Cover kind={post.cover} label={post.category} />
-        {isBig && <span class="mag-feat-tag">★ Más reciente</span>}
+        {isBig && <span class="mag-feat-tag">★ {t('blog.most_recent', undefined, locale)}</span>}
       </div>
       <div class="mag-body">
         <div class="mag-eyebrow">
@@ -75,24 +84,29 @@ function MagCard({ post, variant }: { post: Post; variant: 'big' | 'side' | 'bas
         <div class="mag-foot">
           {isBig && (
             <div class="mag-tags">
-              {post.tags.slice(0, 3).map((t) => <span key={t} class="skill-chip">{t}</span>)}
+              {post.tags.slice(0, 3).map((tg) => <span key={tg} class="skill-chip">{tg}</span>)}
             </div>
           )}
-          <span class="mag-read">{post.readMin} min lectura →</span>
+          <span class="mag-read">{post.readMin} {t('blog.min_read', undefined, locale)} →</span>
         </div>
       </div>
     </a>
   );
 }
 
-export default function BlogSection() {
-  const [cat, setCat] = useState("Todos");
-  
-  const filtered = useMemo(() => 
-    cat === "Todos" ? POSTS : POSTS.filter((p) => p.category === cat),
-    [cat]
+const BlogSection: FunctionComponent<Props> = ({ posts, allLabel, locale }) => {
+  const [cat, setCat] = useState(allLabel);
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(posts.map((p) => p.category)));
+    return [allLabel, ...cats];
+  }, [posts, allLabel]);
+
+  const filtered = useMemo(() =>
+    cat === allLabel ? posts : posts.filter((p) => p.category === cat),
+    [posts, cat, allLabel]
   );
-  
+
   const ordered = useMemo(() => {
     const f = filtered.find((p) => p.featured) || filtered[0];
     if (!f) return [];
@@ -109,35 +123,37 @@ export default function BlogSection() {
         <Reveal>
           <div class="sect-head">
             <div>
-              <div class="eyebrow"><span class="idx">05</span> · Blog · {POSTS.length} posts</div>
-              <h2 class="sect-title" style={{ marginTop: 18 }}>
-                Notas de campo sobre <span class="serif-it">IA aplicada</span>.
-              </h2>
-              <p style={{ color: "var(--muted)", maxWidth: 540, marginTop: 22, fontSize: 17, lineHeight: 1.55 }}>
-                Lo que aprendo construyendo agentes, plataformas y procesos. Sin teoría inflada — sólo lo que ya funcionó (o falló).
+              <div class="eyebrow">
+                <span class="idx">05</span>
+                <span> · {t('blog.eyebrow', undefined, locale)} · {posts.length} {t('blog.posts_label', undefined, locale)}</span>
+              </div>
+              <h2 class="sect-title" style={{ marginTop: 18 }}
+                  dangerouslySetInnerHTML={{ __html: t('blog.title', undefined, locale) }} />
+              <p style={{ color: 'var(--muted)', maxWidth: 540, marginTop: 22, fontSize: 17, lineHeight: 1.55 }}>
+                {t('blog.lede', undefined, locale)}
               </p>
             </div>
           </div>
         </Reveal>
 
         <Reveal>
-          <Filters options={CATEGORIES} value={cat} onChange={setCat} />
+          <Filters options={categories} value={cat} onChange={setCat} />
         </Reveal>
 
         {ordered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 80, color: "var(--muted)" }}>
-            Sin posts en esta categoría.
+          <div style={{ textAlign: 'center', padding: 80, color: 'var(--muted)' }}>
+            {t('blog.empty', undefined, locale)}
           </div>
         ) : (
           <div class="blog-mag">
             {big && (
               <Reveal>
                 <div class="mag-top">
-                  <MagCard post={big} variant="big" />
+                  <MagCard post={big} variant="big" locale={locale} />
                   {side.length > 0 && (
                     <div class="mag-side-col">
                       {side.map((p) => (
-                        <MagCard key={p.id} post={p} variant="side" />
+                        <MagCard key={p.id} post={p} variant="side" locale={locale} />
                       ))}
                     </div>
                   )}
@@ -148,7 +164,7 @@ export default function BlogSection() {
               <Reveal delay={120}>
                 <div class="mag-bottom">
                   {bottom.map((p) => (
-                    <MagCard key={p.id} post={p} variant="base" />
+                    <MagCard key={p.id} post={p} variant="base" locale={locale} />
                   ))}
                 </div>
               </Reveal>
@@ -158,4 +174,6 @@ export default function BlogSection() {
       </div>
     </section>
   );
-}
+};
+
+export default BlogSection;

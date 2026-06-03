@@ -2,40 +2,45 @@
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
 
-## Current Feature: Dark Mode Contrast
+## Current Feature: Multi-Language Translation (i18n)
 
-**Branch**: `001-static-nav`
+**Branch**: `005-i18n-translation`
 
-**Spec**: [specs/002-dark-mode-contrast/spec.md](specs/002-dark-mode-contrast/spec.md)
+**Plan**: [specs/005-i18n-translation/plan.md](specs/005-i18n-translation/plan.md)
 
 ### Quick Reference
 
-- **Stack**: Astro 4.x, Preact, TypeScript
-- **Focus**: Improve badge and search field readability in dark mode
-- **Problem**: Users struggle to notice the border and read text in the Ask section
-
-### Key Change
-
-1. **Ask Section** - Improve dark mode contrast and readability
+- **Stack**: Astro 4.16, Preact 10, TypeScript 5.6 (strict). No new runtime deps.
+- **Focus**: Spanish (default) + English on launch, extensible to N languages by adding one JSON file.
+- **Approach**: Hand-rolled key→string catalogs, SSG renders default locale, client-side DOM swap on toggle via `[data-i18n]` markers.
 
 ### Key Documents
 
-- [Specification](specs/002-dark-mode-contrast/spec.md) - User stories and requirements
-- [Plan](specs/002-dark-mode-contrast/plan.md) - Technical context and migration strategy
-- [Research](specs/002-dark-mode-contrast/research.md) - Dark mode contrast approach
-- [Data Model](specs/002-dark-mode-contrast/data-model.md) - Theme state and visual elements
-- [Quickstart](specs/002-dark-mode-contrast/quickstart.md) - Verification steps
+- [Specification](specs/005-i18n-translation/spec.md) — User stories, FR-001…FR-012, success criteria
+- [Plan](specs/005-i18n-translation/plan.md) — Technical context, constitution gates, project structure
+- [Research](specs/005-i18n-translation/research.md) — 7 decisions with rationale + alternatives
+- [Data Model](specs/005-i18n-translation/data-model.md) — Locale, Catalog, Key, Preference, validation rules
+- [Contracts](specs/005-i18n-translation/contracts/) — `i18n-api.md` (module surface) + `locale-catalog.schema.json`
+- [Quickstart](specs/005-i18n-translation/quickstart.md) — Verification, content audit, add-a-language guide
 
 ### Constitution Principles
 
-1. **Component-First Architecture** - Atomic design hierarchy
-2. **Static-First, Islands for Interactivity** - Minimal JS shipping
-3. **Design Fidelity (NON-NEGOTIABLE)** - Desktop unchanged, mobile adapts
-4. **Accessibility & Performance** - 44x44px touch targets, Lighthouse 90+
-5. **Maintainability & Extensibility** - Prefer flexbox over grid on mobile
+1. **Component-First Architecture** — i18n lives under `src/i18n/`, switcher under `src/components/islands/`
+2. **Static-First, Islands for Interactivity** — Default locale rendered at SSG; switcher is `client:idle`
+3. **Design Fidelity (NON-NEGOTIABLE)** — Translation only changes text; never markup or styles
+4. **Accessibility & Performance** — `<html lang>` updates, 44×44 px targets, Lighthouse ≥ 95
+5. **Maintainability & Extensibility** — New language = 1 JSON file + 1 line in `src/i18n/config.ts`
 
-### Files to Modify
+### Files to Add / Modify
 
-- `src/components/...` - Update the Ask section styles for dark mode readability
-- `src/styles/global.css` - Adjust shared theme tokens or section styles if needed
+- `src/i18n/config.ts` — Supported locales registry (NEW)
+- `src/i18n/translate.ts` — `t(key, params?, locale?)` build-time helper (NEW)
+- `src/i18n/client.ts` — Browser runtime: detect, persist, swap DOM (NEW)
+- `src/i18n/locales/{es,en}.json` — Catalogs (NEW)
+- `src/components/islands/LanguageSwitcher.tsx` — Preact island (NEW)
+- `scripts/check-i18n.ts` — Build-time parity checker, wired into `npm run build` (NEW)
+- `src/layouts/BaseLayout.astro` — Embed catalogs, mount switcher, `<html lang>` (MODIFY)
+- All `.astro` components — Replace literal strings with `t('…')` + add `data-i18n` markers (MODIFY)
+- `src/pages/index.astro`, `src/pages/blog/[slug].astro` — i18n integration (MODIFY)
+- `package.json` — Add `i18n:check` script + extend `build` (MODIFY)
 <!-- SPECKIT END -->

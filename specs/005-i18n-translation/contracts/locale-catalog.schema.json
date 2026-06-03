@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cv-landing-page/contracts/locale-catalog.schema.json",
+  "title": "Locale Catalog",
+  "description": "JSON Schema for a single-locale translation catalog file under src/i18n/locales/<code>.json. The catalog is a flat object whose keys are dotted translation keys and whose values are translated strings.",
+  "type": "object",
+  "minProperties": 1,
+  "patternProperties": {
+    "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*$": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Translated string. May contain {tokenName} placeholders. Placeholders MUST match the same key in the default locale exactly."
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "nav.home": "Inicio",
+      "nav.experience": "Experiencia",
+      "hero.greeting": "Hola, soy {name}",
+      "ask.placeholder": "Preguntá lo que quieras…",
+      "footer.rights": "Todos los derechos reservados",
+      "meta.title": "Mi CV",
+      "meta.description": "Portfolio profesional"
+    }
+  ]
+}

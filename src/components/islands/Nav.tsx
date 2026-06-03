@@ -1,4 +1,12 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
+import type { FunctionComponent } from 'preact';
+import { locales, defaultLocale, supportedCodes } from '../../i18n/config';
+import { t } from '../../i18n/translate';
+
+interface Props {
+  /** Active locale code for this route. */
+  locale: string;
+}
 
 const Icon = {
   sun: () => (
@@ -56,53 +64,74 @@ function FlagEN() {
   );
 }
 
-const LANGS = [
-  { code: "es", name: "Español", Flag: FlagES },
-  { code: "en", name: "English", Flag: FlagEN },
-];
+function FlagGeneric({ code }: { code: string }) {
+  return (
+    <svg class="flag" viewBox="0 0 30 20" width="20" height="14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="30" height="20" fill="var(--ink)"/>
+      <text x="15" y="14" textAnchor="middle" fill="var(--bg)" fontSize="10" fontFamily="monospace" fontWeight="700">
+        {code.toUpperCase()}
+      </text>
+    </svg>
+  );
+}
 
-const LABELS = {
-  es: {
-    home: "Inicio", about: "Sobre mí", projects: "Proyectos", blog: "Blog", contact: "Contacto",
-    themeAria: "Cambiar tema", langAria: "Seleccionar idioma", menuAria: "Abrir menú", closeAria: "Cerrar menú"
-  },
-  en: {
-    home: "Home", about: "About", projects: "Projects", blog: "Blog", contact: "Contact",
-    themeAria: "Toggle theme", langAria: "Select language", menuAria: "Open menu", closeAria: "Close menu"
+function flagFor(code: string) {
+  if (code === 'es') return FlagES;
+  if (code === 'en') return FlagEN;
+  return () => <FlagGeneric code={code} />;
+}
+
+/**
+ * Compute the URL to navigate to when switching to `targetCode`.
+ *
+ * Strategy: replace the leading `/{lang}/...` segment of the current pathname
+ * with `/{targetCode}/...`. If the current path doesn't start with a known
+ * locale prefix, fall back to the target locale's home.
+ */
+function pathForLocale(targetCode: string): string {
+  if (typeof window === 'undefined') return `/${targetCode}/`;
+  const path = window.location.pathname || '/';
+  const match = path.match(/^\/([a-z]{2})(\/.*)?$/);
+  if (match && supportedCodes.includes(match[1])) {
+    const rest = match[2] ?? '/';
+    return `/${targetCode}${rest}`;
   }
-};
+  return `/${targetCode}/`;
+}
 
-export default function Nav() {
+const Nav: FunctionComponent<Props> = ({ locale }) => {
   const [active, setActive] = useState("home");
   const [theme, setTheme] = useState("light");
-  const [lang, setLang] = useState<"es" | "en">("es");
   const [langOpen, setLangOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const L = LABELS[lang];
+  const lang = supportedCodes.includes(locale) ? locale : defaultLocale;
+
   const items = [
-    { id: "home", label: L.home },
-    { id: "about", label: L.about },
-    { id: "projects", label: L.projects },
-    { id: "blog", label: L.blog },
-    { id: "contact", label: L.contact },
+    { id: "home",     key: "nav.home" },
+    { id: "about",    key: "nav.about" },
+    { id: "projects", key: "nav.projects" },
+    { id: "blog",     key: "nav.blog" },
+    { id: "contact",  key: "nav.contact" },
   ];
 
+  const themeAria = t("nav.theme.aria", undefined, lang);
+  const langAria  = t("nav.lang.aria", undefined, lang);
+  const menuAria  = t("nav.menu.open", undefined, lang);
+  const closeAria = t("nav.menu.close", undefined, lang);
+
+  // ── Initial theme ──────────────────────────────────────────────────────────
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
     setTheme(initialTheme);
     document.documentElement.setAttribute("data-theme", initialTheme);
-
-    const savedLang = localStorage.getItem("lang") as "es" | "en" | null;
-    if (savedLang && (savedLang === "es" || savedLang === "en")) {
-      setLang(savedLang);
-    }
   }, []);
 
+  // ── Scroll-spy ─────────────────────────────────────────────────────────────
   useEffect(() => {
     const sectionIds = ["home", "about", "projects", "blog", "contact"];
 
@@ -134,7 +163,7 @@ export default function Nav() {
     };
   }, []);
 
-  // Close lang dropdown on outside click or escape
+  // ── Lang dropdown outside-click / escape ───────────────────────────────────
   useEffect(() => {
     if (!langOpen) return;
     const onDoc = (e: MouseEvent) => {
@@ -149,13 +178,12 @@ export default function Nav() {
     };
   }, [langOpen]);
 
-  // Close mobile menu on outside click or escape
+  // ── Mobile menu outside-click / escape + body lock ─────────────────────────
   useEffect(() => {
     if (!menuOpen) return;
-    
+
     const onDoc = (e: MouseEvent) => {
       const target = e.target as Node;
-      // Close if click is outside both the menu and the hamburger button
       if (menuRef.current && !menuRef.current.contains(target)) {
         const hamburgerBtn = document.querySelector('.hamburger-btn');
         if (!hamburgerBtn?.contains(target)) {
@@ -163,17 +191,16 @@ export default function Nav() {
         }
       }
     };
-    
-    const onEsc = (e: KeyboardEvent) => { 
-      if (e.key === "Escape") setMenuOpen(false); 
+
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
     };
-    
-    // Prevent body scroll when menu is open
+
     document.body.style.overflow = 'hidden';
-    
+
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onEsc);
-    
+
     return () => {
       document.body.style.overflow = '';
       document.removeEventListener("mousedown", onDoc);
@@ -188,44 +215,41 @@ export default function Nav() {
     localStorage.setItem("theme", next);
   };
 
-  const changeLang = (code: "es" | "en") => {
-    setLang(code);
-    localStorage.setItem("lang", code);
-    setLangOpen(false);
-  };
-
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     }
-    // Close mobile menu after navigation
     setMenuOpen(false);
   };
 
+  /**
+   * Navigation: if we're already on the locale-home (`/{lang}/`), scroll to
+   * the section. Otherwise navigate to `/{lang}/#section` (or `/{lang}/` for
+   * "home"), which lets the slug page bounce back to the landing.
+   */
   const navigateToSection = (id: string) => {
-    if (window.location.pathname === "/") {
+    const homePath = `/${lang}/`;
+    if (typeof window !== 'undefined' && window.location.pathname === homePath) {
       scrollTo(id);
       setActive(id);
       return;
     }
-
-    window.location.href = id === "home" ? "/" : `/#${id}`;
+    window.location.href = id === "home" ? homePath : `${homePath}#${id}`;
   };
-
-  const navigateToContact = () => navigateToSection("contact");
 
   const toggleMenu = () => {
     setMenuOpen((v) => !v);
   };
 
-  const current = LANGS.find((l) => l.code === lang) || LANGS[0];
+  const current = locales.find((l) => l.code === lang) || locales[0];
+  const CurrentFlag = flagFor(current.code);
 
   return (
     <>
       <nav class="nav">
         <div class="nav-inner">
-          <a class="nav-logo" href="/" onClick={(e) => { e.preventDefault(); navigateToSection("home"); }}>
+          <a class="nav-logo" href={`/${lang}/`} onClick={(e) => { e.preventDefault(); navigateToSection("home"); }}>
             <img
               class="nav-logo-img"
               src={theme === "dark" ? "/darcdev-black.png" : "/darcdev-light.png"}
@@ -235,7 +259,7 @@ export default function Nav() {
             />
             <span class="nav-logo-name">Darcdev</span>
           </a>
-          
+
           {/* Desktop nav links - hidden on mobile */}
           <div class="nav-links hide-mobile-flex">
             {items.map((it) => (
@@ -244,23 +268,23 @@ export default function Nav() {
                 class={`nav-link ${active === it.id ? "active" : ""}`}
                 onClick={() => navigateToSection(it.id)}
               >
-                {it.label}
+                {t(it.key, undefined, lang)}
               </button>
             ))}
           </div>
-          
+
           <span class="nav-divider hide-mobile"></span>
-          
+
           <button
             class="nav-icon-btn theme-btn"
             onClick={toggleTheme}
-            aria-label={L.themeAria}
-            title={L.themeAria}
+            aria-label={themeAria}
+            title={themeAria}
           >
             {theme === "light" ? <Icon.moon /> : <Icon.sun />}
           </button>
-          
-          {/* Language selector - hidden on mobile (moved to mobile menu) */}
+
+          {/* Language selector - desktop */}
           <div class={`nav-lang-wrap hide-mobile ${langOpen ? "open" : ""}`} ref={wrapRef}>
             <button
               type="button"
@@ -268,43 +292,46 @@ export default function Nav() {
               onClick={() => setLangOpen((v) => !v)}
               aria-haspopup="listbox"
               aria-expanded={langOpen}
-              aria-label={L.langAria}
-              title={L.langAria}
+              aria-label={langAria}
+              title={langAria}
             >
-              <current.Flag />
-              <span class="nav-lang-name">{current.name}</span>
+              <CurrentFlag />
+              <span class="nav-lang-name">{current.label}</span>
               <svg class="nav-lang-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </button>
             {langOpen && (
               <ul class="nav-lang-menu" role="listbox">
-                {LANGS.map((l) => (
-                  <li key={l.code} role="option" aria-selected={l.code === lang}>
-                    <button
-                      type="button"
-                      class={`nav-lang-opt ${l.code === lang ? "active" : ""}`}
-                      onClick={() => changeLang(l.code as "es" | "en")}
-                    >
-                      <l.Flag />
-                      <span>{l.name}</span>
-                      {l.code === lang && (
-                        <svg class="nav-lang-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                      )}
-                    </button>
-                  </li>
-                ))}
+                {locales.map((l) => {
+                  const Flag = flagFor(l.code);
+                  return (
+                    <li key={l.code} role="option" aria-selected={l.code === lang}>
+                      <a
+                        href={pathForLocale(l.code)}
+                        class={`nav-lang-opt ${l.code === lang ? "active" : ""}`}
+                        hrefLang={l.code}
+                      >
+                        <Flag />
+                        <span>{l.label}</span>
+                        {l.code === lang && (
+                          <svg class="nav-lang-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                        )}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
-          
-          {/* Hamburger button - visible on mobile only */}
+
+          {/* Hamburger - mobile only */}
           <button
             class="hamburger-btn show-mobile-flex"
             onClick={toggleMenu}
-            aria-label={menuOpen ? L.closeAria : L.menuAria}
+            aria-label={menuOpen ? closeAria : menuAria}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
           >
@@ -312,32 +339,29 @@ export default function Nav() {
           </button>
         </div>
       </nav>
-      
-      {/* Mobile menu overlay */}
-      <div 
-        class={`mobile-menu-overlay ${menuOpen ? "open" : ""}`} 
+
+      <div
+        class={`mobile-menu-overlay ${menuOpen ? "open" : ""}`}
         onClick={() => setMenuOpen(false)}
         aria-hidden="true"
       />
-      
-      {/* Mobile menu panel */}
-      <div 
+
+      <div
         id="mobile-menu"
         class={`mobile-menu ${menuOpen ? "open" : ""}`}
         ref={menuRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Navigation menu"
+        aria-label={menuAria}
       >
-        {/* Close button */}
         <button
           class="mobile-menu-close"
           onClick={() => setMenuOpen(false)}
-          aria-label={L.closeAria}
+          aria-label={closeAria}
         >
           <Icon.close />
         </button>
-        
+
         <div class="mobile-menu-inner">
           <div class="mobile-menu-links">
             {items.map((it) => (
@@ -346,28 +370,34 @@ export default function Nav() {
                 class={`mobile-menu-link ${active === it.id ? "active" : ""}`}
                 onClick={() => navigateToSection(it.id)}
               >
-                {it.label}
+                {t(it.key, undefined, lang)}
               </button>
             ))}
           </div>
-          
-          {/* Language selector in mobile menu */}
+
           <div class="mobile-menu-footer">
-            <div class="mobile-menu-lang">
-              {LANGS.map((l) => (
-                <button
-                  key={l.code}
-                  class={`mobile-lang-btn ${l.code === lang ? "active" : ""}`}
-                  onClick={() => changeLang(l.code as "es" | "en")}
-                >
-                  <l.Flag />
-                  <span>{l.name}</span>
-                </button>
-              ))}
+            <div class="mobile-menu-lang" role="group" aria-label={langAria}>
+              {locales.map((l) => {
+                const Flag = flagFor(l.code);
+                return (
+                  <a
+                    key={l.code}
+                    href={pathForLocale(l.code)}
+                    class={`mobile-lang-btn ${l.code === lang ? "active" : ""}`}
+                    aria-pressed={l.code === lang}
+                    hrefLang={l.code}
+                  >
+                    <Flag />
+                    <span>{l.label}</span>
+                  </a>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
     </>
   );
-}
+};
+
+export default Nav;

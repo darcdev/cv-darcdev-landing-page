@@ -1,14 +1,21 @@
 ---
+import { defaultLocale } from '../../i18n/config';
+import { t } from '../../i18n/translate';
+
 interface Props {
   number: string;
-  label: string;
+  /** Either a literal label OR a translation key (preferred). */
+  label?: string;
+  labelKey?: string;
   mono?: boolean;
+  locale?: string;
 }
 
-const { number, label, mono = false } = Astro.props;
+const { number, label, labelKey, mono = false, locale = defaultLocale } = Astro.props;
+const resolvedLabel = labelKey ? t(labelKey, undefined, locale) : (label ?? '');
 ---
 
 <div class="stat-cell">
   <div class="n" style={mono ? "font-family: var(--font-mono)" : ""}>{number}</div>
-  <div class="l">{label}</div>
+  <div class="l">{resolvedLabel}</div>
 </div>
