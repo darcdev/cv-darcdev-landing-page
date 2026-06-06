@@ -1,6 +1,7 @@
 ---
 import Nav from "../components/islands/Nav";
 import Footer from "../components/organisms/Footer.astro";
+import WhatsAppFloat from "../components/atoms/WhatsAppFloat.astro";
 import { defaultLocale } from "../i18n/config";
 import { t } from "../i18n/translate";
 
@@ -60,6 +61,7 @@ const renderedDescription = description ?? t(descriptionKey, undefined, locale);
       <Nav locale={locale} client:load />
       <slot />
       <Footer locale={locale} />
+      <WhatsAppFloat locale={locale} />
     </div>
   </body>
 </html>

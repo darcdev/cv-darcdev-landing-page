@@ -2301,6 +2301,34 @@ a.status-pill--whatsapp:hover {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== Floating WhatsApp ===== */
+.whatsapp-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.whatsapp-float:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 28px rgba(37, 211, 102, 0.55);
+  background: #1ebe57;
+  color: #fff;
+}
+.whatsapp-float:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
 /* ===== Footer ===== */
 .footer {
   border-top: 1px solid var(--line);

@@ -1,0 +1,24 @@
+---
+import Icon from './Icon.astro';
+import { defaultLocale } from '../../i18n/config';
+import { t } from '../../i18n/translate';
+import { getWhatsAppHref } from '../../lib/whatsapp';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale = defaultLocale } = Astro.props;
+const href = getWhatsAppHref('work', locale);
+const ariaLabel = t('whatsapp.float.aria', undefined, locale);
+---
+
+<a
+  class="whatsapp-float"
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={ariaLabel}
+>
+  <Icon name="whatsapp" size={26} />
+</a>

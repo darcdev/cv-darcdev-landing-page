@@ -115,8 +115,12 @@
   "contact.links.location": "Ubicación",
   "contact.links.copied": "✓ copiado al portapapeles",
 
+  "whatsapp.message.work": "Hola Diego, me gustaría trabajar contigo en algo juntos.",
+  "whatsapp.message.advisory": "Hola Diego, me gustaría solicitar una asesoría.",
+  "whatsapp.float.aria": "Escríbeme por WhatsApp para trabajar juntos",
+
   "footer.copy": "© 2026 · Diego Cabrera · Bogotá, Colombia",
-  "footer.built": "Construido con cuidado · Astro + Preact + tu base de conocimiento",
+  "footer.built": "Construido con conocimiento y SDD",
 
   "post.back": "Volver al blog",
   "post.toc.title": "En este post",

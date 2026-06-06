@@ -20,7 +20,7 @@ interface Props {
 const getContacts = (locale: string): ContactItem[] => [
   { labelKey: 'contact.links.email',    v: 'diegoandresrojas2000@gmail.com',                  href: 'mailto:diegoandresrojas2000@gmail.com', copy: true },
   { labelKey: 'contact.links.phone',    v: '+57 320 418 0598',                                 href: 'tel:+573204180598',                       copy: true },
-  { labelKey: 'contact.links.whatsapp', v: 'WhatsApp →',                                       href: getWhatsAppHref() },
+  { labelKey: 'contact.links.whatsapp', v: 'WhatsApp →',                                       href: getWhatsAppHref('work', locale) },
   { labelKey: 'contact.links.cv',       v: 'CV →',                                             href: getCvHref(locale) },
   { labelKey: 'contact.links.linkedin', v: 'linkedin.com/in/diego-andres-rojas →',             href: 'https://www.linkedin.com/in/diego-andres-rojas/' },
   { labelKey: 'contact.links.github',   v: 'github.com/darcdev →',                             href: 'https://github.com/darcdev' },
