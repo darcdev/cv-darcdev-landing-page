@@ -557,13 +557,33 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
 .status-pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-family: var(--font-mono);
   font-size: 12px;
-  padding: 8px 14px;
+  line-height: 1;
+  padding: 10px 14px;
+  min-height: 38px;
   border-radius: 999px;
   border: 1px solid var(--line-strong);
   background: var(--paper);
+  box-sizing: border-box;
+}
+a.status-pill {
+  text-decoration: none;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+a.status-pill:hover {
+  background: var(--ink);
+  color: var(--paper);
+  transform: translateY(-1px);
+}
+a.status-pill--whatsapp:hover {
+  background: #25d366;
+  border-color: #25d366;
+  color: #fff;
 }
 .status-pill .pulse {
   width: 7px; height: 7px;
@@ -715,22 +735,27 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   width: 100%;
 }
 .hero-social-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 11px 16px;
+  padding: 10px 16px;
+  min-height: 38px;
   border-radius: 999px;
   border: 1px solid var(--ink);
   background: var(--paper);
   font-size: 13px;
+  line-height: 1;
   font-weight: 500;
   color: var(--ink);
   transition: background 0.2s, color 0.2s, transform 0.15s;
   font-family: var(--font-sans);
   cursor: pointer;
+  box-sizing: border-box;
 }
 .hero-social-btn:hover {
   background: var(--ink);
@@ -2505,11 +2530,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   margin-left: auto;
   margin-right: auto;
 }
-/* Center the status pills container on mobile */
-.contact-grid > div > div[style*="display: flex"] {
-  justify-content: center;
-}
-
 /* Contact link - STACK label above value (US5) */
 .contact-link {
   flex-direction: column;
@@ -2553,14 +2573,19 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
 .terminal { font-size: 12px; }
 .terminal-body { padding: 14px; min-height: 140px; }
 
-/* Status pill - smaller */
-.status-pill { font-size: 10px; padding: 6px 10px; }
+/* Status pill - smaller on mobile */
+.status-pill { font-size: 11px; padding: 8px 12px; min-height: 34px; }
 
 /* Hero shapes - reduced opacity on mobile */
 .hero-shapes { opacity: 0.5; }
 
 .pill-contact {
-  margin-top: 28px; display: flex; gap: 10px; flex-wrap: wrap
+  margin-top: 28px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
 }
 
 /* --- 480px: Large phones --- */

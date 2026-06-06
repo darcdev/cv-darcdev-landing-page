@@ -2,12 +2,14 @@
 import Icon from '../atoms/Icon.astro';
 import { defaultLocale } from '../../i18n/config';
 import { t } from '../../i18n/translate';
+import { getCvHref } from '../../lib/cv';
 
 interface Props {
   locale?: string;
 }
 
 const { locale = defaultLocale } = Astro.props;
+const cvHref = getCvHref(locale);
 ---
 
 <div class="hero-social">
@@ -23,8 +25,9 @@ const { locale = defaultLocale } = Astro.props;
   </a>
   <a
     class="hero-social-btn primary"
-    href="/cv/CV_Diego_Andres_Cabrera_Rojas_CV.pdf"
-    download="Diego_Cabrera_CV.pdf"
+    href={cvHref}
+    target="_blank"
+    rel="noopener noreferrer"
   >
     <Icon name="download" />
     <span>{t('hero.social.cv', undefined, locale)}</span>
