@@ -9,6 +9,7 @@ import {
   loadPostEntry,
   type PostMeta,
 } from "../../../content/loadPosts";
+import { resolvePostHero } from "../../../lib/images";
 import { supportedCodes, defaultLocale, resolveLocale } from "../../../i18n/config";
 import { t } from "../../../i18n/translate";
 
@@ -36,6 +37,9 @@ const { entry } = resolved;
 const { Content, headings } = await entry.render();
 const h2Headings = headings.filter((h) => h.depth === 2);
 
+// Hero image at full-resolution context for the post detail page.
+const heroImage = await resolvePostHero(entry, langCode, "hero");
+
 const byLocale = await loadPostsByLocale();
 const localizedList: PostMeta[] = byLocale[langCode] ?? byLocale[defaultLocale] ?? [];
 const morePosts = localizedList
@@ -57,7 +61,7 @@ const readMinLabel = t("blog.min_read", undefined, langCode);
   <div class="post-page">
     <div class="container">
       <div class="post-breadcrumb">
-        <a href={`/${langCode}/#blog`} class="back-btn">
+        <a href={`/${langCode}/blog`} class="back-btn">
           <span class="back-arrow">←</span>
           <span>{t("post.back", undefined, langCode)}</span>
         </a>
@@ -87,7 +91,20 @@ const readMinLabel = t("blog.min_read", undefined, langCode);
       </div>
       <div class="container">
         <div class="post-cover">
-          <Cover kind={post.cover} label={post.category} />
+          {heroImage ? (
+            <img
+              src={heroImage.src}
+              srcset={heroImage.srcset || undefined}
+              sizes={heroImage.sizes || undefined}
+              width={heroImage.width}
+              height={heroImage.height}
+              alt={heroImage.alt}
+              loading="eager"
+              decoding="async"
+            />
+          ) : (
+            <Cover kind={post.cover} label={post.category} />
+          )}
         </div>
       </div>
     </article>
@@ -195,7 +212,20 @@ const readMinLabel = t("blog.min_read", undefined, langCode);
               style="text-decoration: none; color: inherit;"
             >
               <div class="mag-cover">
-                <Cover kind={p.cover} label={p.category} />
+                {p.heroImage ? (
+                  <img
+                    src={p.heroImage.src}
+                    srcset={p.heroImage.srcset || undefined}
+                    sizes={p.heroImage.sizes || undefined}
+                    width={p.heroImage.width}
+                    height={p.heroImage.height}
+                    alt={p.heroImage.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <Cover kind={p.cover} label={p.category} />
+                )}
               </div>
               <div class="mag-body">
                 <div class="mag-eyebrow">

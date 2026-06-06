@@ -65,6 +65,9 @@
   "projects.modal.client": "Cliente",
   "projects.modal.status": "Estado",
   "projects.modal.stack": "Stack",
+  "projects.gallery.counter": "{n} / {total}",
+  "projects.gallery.prev": "Imagen anterior",
+  "projects.gallery.next": "Siguiente imagen",
 
   "ask.eyebrow": "Demo en vivo",
   "ask.title": "La idea que llevo a producción,<br/>aquí mismo.",
@@ -93,6 +96,9 @@
   "blog.empty": "Sin posts en esta categoría.",
   "blog.most_recent": "Más reciente",
   "blog.min_read": "min lectura",
+  "blog.view_all": "Ver todos los posts ({count})",
+  "blog.archive.title": "Todos los <span class=\"serif-it\">posts</span>",
+  "blog.archive.back": "Volver al inicio",
 
   "contact.eyebrow": "Contacto",
   "contact.title": "¿Construimos<br/><span class=\"it\">algo juntos?</span>",

@@ -1,15 +1,36 @@
 ---
+import type { ResolvedImage } from '../../lib/imageTypes';
+
 type CoverKind = 'rag' | 'spec' | 'mcp' | 'arch' | 'oss' | 'pr';
 
 interface Props {
   kind: CoverKind;
   label?: string;
   class?: string;
+  /**
+   * Optional pre-resolved image. When present, render an optimized <img>;
+   * otherwise fall through to the SVG cover pattern (byte-identical to the
+   * pre-feature behavior — SC-007).
+   */
+  image?: ResolvedImage | null;
 }
 
-const { kind, label, class: className = '' } = Astro.props;
+const { kind, label, class: className = '', image = null } = Astro.props;
 ---
 
 <div class={`cover cover-${kind} ${className}`.trim()}>
-  {label && <div class="cover-svg-label">{label}</div>}
+  {image ? (
+    <img
+      src={image.src}
+      srcset={image.srcset || undefined}
+      sizes={image.sizes || undefined}
+      width={image.width}
+      height={image.height}
+      alt={image.alt}
+      loading="lazy"
+      decoding="async"
+    />
+  ) : (
+    label && <div class="cover-svg-label">{label}</div>
+  )}
 </div>

@@ -8,6 +8,10 @@ displayDate: "May 12, 2026"
 readMin: 9
 featured: true
 cover: rag
+heroImage: ../../../assets/images/posts/rag-en-produccion.jpg
+heroImageAlt:
+  es: "Diagrama del pipeline RAG en producción"
+  en: "RAG pipeline diagram in production"
 ---
 
 Building a RAG in a notebook is easy. Building it in production, with real users asking the unpredictable, with documents that change every week and audit behind, is something else.

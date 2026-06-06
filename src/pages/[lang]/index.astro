@@ -4,16 +4,23 @@ import HeroSection from '../../components/organisms/HeroSection.astro';
 import AboutSection from '../../components/organisms/AboutSection.astro';
 import ContactSection from '../../components/organisms/ContactSection.astro';
 import AskSection from '../../components/organisms/AskSection.astro';
-import ProjectsSection from '../../components/islands/ProjectsSection';
+import ProjectsSection, {
+  type ProjectWithImages,
+  type GalleryStrings,
+} from '../../components/islands/ProjectsSection';
 import BlogSection from '../../components/islands/BlogSection';
 import { loadPostsByLocale } from '../../content/loadPosts';
-import { supportedCodes, defaultLocale } from '../../i18n/config';
+import { getProjects } from '../../data/projects';
+import { resolveProjectImages } from '../../lib/images';
+import { supportedCodes, defaultLocale, resolveLocale } from '../../i18n/config';
+import { t } from '../../i18n/translate';
 
 export function getStaticPaths() {
   return supportedCodes.map((code) => ({ params: { lang: code } }));
 }
 
 const lang = (Astro.params.lang as string | undefined) ?? defaultLocale;
+const langCode = resolveLocale(lang);
 
 const postsByLocale = await loadPostsByLocale();
 const localizedPosts = postsByLocale[lang] ?? postsByLocale[defaultLocale] ?? [];
@@ -21,16 +28,41 @@ const localizedPosts = postsByLocale[lang] ?? postsByLocale[defaultLocale] ?? []
 // Localized "All" labels (kept tiny — extend when adding new languages).
 const ALL_LABELS: Record<string, string> = { es: 'Todos', en: 'All' };
 const allLabel = ALL_LABELS[lang] ?? ALL_LABELS[defaultLocale] ?? 'All';
+
+// SSG-only: resolve every project image in the three rendering contexts so the
+// Preact island can render <img> tags without invoking server-only APIs.
+const baseProjects = getProjects(lang);
+const projectsWithImages: ProjectWithImages[] = await Promise.all(
+  baseProjects.map(async (p) => {
+    const [card, modal] = await Promise.all([
+      resolveProjectImages(p, langCode, 'card'),
+      resolveProjectImages(p, langCode, 'modal'),
+    ]);
+    return { ...p, resolvedImages: { card, modal } };
+  }),
+);
+
+const galleryStrings: GalleryStrings = {
+  counterLabel: t('projects.gallery.counter', undefined, lang),
+  prevLabel: t('projects.gallery.prev', undefined, lang),
+  nextLabel: t('projects.gallery.next', undefined, lang),
+};
 ---
 
 <BaseLayout locale={lang}>
   <HeroSection locale={lang} />
   <AboutSection locale={lang} />
-  <ProjectsSection locale={lang} client:visible />
+  <ProjectsSection
+    locale={lang}
+    projects={projectsWithImages}
+    galleryStrings={galleryStrings}
+    client:visible
+  />
   <BlogSection
     posts={localizedPosts}
     allLabel={allLabel}
     locale={lang}
+    previewLimit={6}
     client:visible
   />
   <AskSection locale={lang} />

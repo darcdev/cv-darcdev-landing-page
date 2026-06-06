@@ -230,6 +230,11 @@ const Nav: FunctionComponent<Props> = ({ locale }) => {
    */
   const navigateToSection = (id: string) => {
     const homePath = `/${lang}/`;
+    if (id === "blog") {
+      window.location.href = `/${lang}/blog`;
+      setMenuOpen(false);
+      return;
+    }
     if (typeof window !== 'undefined' && window.location.pathname === homePath) {
       scrollTo(id);
       setActive(id);

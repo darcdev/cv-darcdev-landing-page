@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BlogSection from '../../../components/islands/BlogSection';
+import { loadPostsByLocale } from '../../../content/loadPosts';
+import { supportedCodes, defaultLocale, resolveLocale } from '../../../i18n/config';
+import { t } from '../../../i18n/translate';
+
+export function getStaticPaths() {
+  return supportedCodes.map((code) => ({ params: { lang: code } }));
+}
+
+const lang = (Astro.params.lang as string | undefined) ?? defaultLocale;
+const langCode = resolveLocale(lang);
+
+const postsByLocale = await loadPostsByLocale();
+const localizedPosts = postsByLocale[lang] ?? postsByLocale[defaultLocale] ?? [];
+
+const ALL_LABELS: Record<string, string> = { es: 'Todos', en: 'All' };
+const allLabel = ALL_LABELS[lang] ?? ALL_LABELS[defaultLocale] ?? 'All';
+---
+
+<BaseLayout
+  locale={langCode}
+  title={`${t('blog.archive.title', undefined, langCode)} · Diego Cabrera`}
+  description={t('blog.lede', undefined, langCode)}
+>
+  <div class="blog-archive-page">
+    <div class="container">
+      <div class="blog-archive-head">
+        <a href={`/${langCode}/`} class="back-btn">
+          <span class="back-arrow">←</span>
+          <span>{t('blog.archive.back', undefined, langCode)}</span>
+        </a>
+        <h1
+          class="sect-title"
+          style="margin-top: 28px;"
+          set:html={t('blog.archive.title', undefined, langCode)}
+        />
+        <p class="blog-archive-lede">{t('blog.lede', undefined, langCode)}</p>
+      </div>
+    </div>
+    <BlogSection
+      posts={localizedPosts}
+      allLabel={allLabel}
+      locale={langCode}
+      client:visible
+    />
+  </div>
+</BaseLayout>

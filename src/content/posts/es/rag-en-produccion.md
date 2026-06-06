@@ -8,6 +8,10 @@ displayDate: "12 May 2026"
 readMin: 9
 featured: true
 cover: rag
+heroImage: ../../../assets/images/posts/rag-en-produccion.jpg
+heroImageAlt:
+  es: "Diagrama del pipeline RAG en producción"
+  en: "RAG pipeline diagram in production"
 ---
 
 Construir un RAG en una notebook es fácil. Construirlo en producción, con usuarios reales preguntando lo impredecible, con documentos que cambian cada semana y con auditoría detrás, es otra cosa.

@@ -1017,10 +1017,12 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   box-shadow: 6px 6px 0 0 var(--ink);
 }
 .feat-card .feat-cover {
-  height: 130px;
+  aspect-ratio: 16 / 10;
   margin: -22px -22px 18px;
   position: relative;
   border-bottom: 1px solid var(--ink);
+  background: var(--paper);
+  line-height: 0;
 }
 .feat-card .feat-num {
   position: absolute;
@@ -1029,7 +1031,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   font-size: 11px;
   color: var(--ink);
   background: var(--paper);
-  padding: 4px 8px;
+  padding: 8px 8px;
   border-radius: 4px;
   border: 1px solid var(--ink);
   z-index: 2;
@@ -1363,7 +1365,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
 
 /* Big featured — vertical layout, fills full height of mag-top */
 .mag-card.mag-big .mag-cover {
-  height: 320px;
+  aspect-ratio: 16 / 10;
   flex-shrink: 0;
 }
 .mag-card.mag-big .mag-body {
@@ -1384,6 +1386,8 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
 .mag-card.mag-side .mag-cover {
   width: 38%;
   min-width: 130px;
+  aspect-ratio: unset;
+  align-self: stretch;
   height: auto;
   border-right: 1px solid var(--ink);
   border-bottom: none;
@@ -1394,7 +1398,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
 
 /* Base cards (bottom row) — vertical, uniform */
 .mag-card.mag-base .mag-cover {
-  height: 150px;
+  aspect-ratio: 16 / 10;
   flex-shrink: 0;
 }
 .mag-card.mag-base .mag-body { padding: 18px 22px 20px; flex: 1; }
@@ -1404,6 +1408,12 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--ink);
+  background: var(--bg-2);
+  line-height: 0;
+}
+.mag-cover .cover {
+  aspect-ratio: 16 / 10;
+  height: auto;
 }
 .mag-feat-tag {
   position: absolute;
@@ -1414,7 +1424,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 6px 12px;
+  padding: 12px 12px;
   border-radius: 999px;
   z-index: 3;
   font-weight: 500;
@@ -1568,7 +1578,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   text-transform: uppercase;
   color: var(--ink);
   background: var(--paper);
-  padding: 4px 8px;
+  padding: 8px 8px;
   border-radius: 4px;
   border: 1px solid var(--ink);
   z-index: 2;
@@ -1806,12 +1816,13 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   line-height: 1.3;
 }
 .modal-cover {
-  aspect-ratio: 16/7;
   border-radius: var(--radius);
   margin-bottom: 32px;
   position: relative;
   overflow: hidden;
   border: 1px solid var(--ink);
+  background: var(--paper);
+  line-height: 0;
 }
 .modal-cols {
   display: grid;
@@ -2017,12 +2028,20 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   margin-bottom: 40px;
 }
 .post-cover {
-  aspect-ratio: 16/7;
+  height: 300px;
   border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
   border: 1px solid var(--ink);
   margin-top: 20px;
+  background: var(--bg-2);
+  line-height: 0;
+}
+.post-cover .cover {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: unset;
+  min-height: 100%;
 }
 
 .post-layout {
@@ -2185,6 +2204,23 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   margin-top: 100px;
   padding-top: 50px;
   border-top: 1px solid var(--line-strong);
+}
+.post-more .mag-card .mag-cover {
+  height: 200px;
+  aspect-ratio: unset;
+  flex-shrink: 0;
+}
+.post-more .mag-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.post-more .mag-cover .cover {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: unset;
+  min-height: 100%;
 }
 
 .post-cta {
@@ -2421,7 +2457,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
 .mag-card.mag-big .mag-cover,
 .mag-card.mag-side .mag-cover,
 .mag-card.mag-base .mag-cover {
-  height: 180px;
+  aspect-ratio: 16 / 10;
   width: 100%;
   border-right: none;
   border-bottom: 1px solid var(--ink);
@@ -2635,7 +2671,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
     gap: 16px;
   }
   /* Restore special card styles */
-  .mag-card.mag-big .mag-cover { height: 280px; }
   .mag-card.mag-big .mag-body { padding: 24px 28px; }
   .mag-card.mag-big .mag-title { font-size: clamp(22px, 2.2vw, 30px); }
   .mag-card.mag-side {
@@ -2644,6 +2679,8 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   .mag-card.mag-side .mag-cover {
     width: 38%;
     min-width: 120px;
+    aspect-ratio: unset;
+    align-self: stretch;
     height: auto;
     border-right: 1px solid var(--ink);
     border-bottom: none;
@@ -2742,7 +2779,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   
   /* Blog magazine - 3-column bottom */
   .mag-bottom { grid-template-columns: repeat(3, 1fr); }
-  .mag-card.mag-big .mag-cover { height: 300px; }
   .mag-card.mag-big .mag-title { font-size: clamp(24px, 2.4vw, 34px); }
   
   /* Featured grid - 3 columns */
@@ -2800,10 +2836,14 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   .stat-cell .n { font-size: 56px; }
   
   /* Blog magazine - original featured size */
-  .mag-card.mag-big .mag-cover { height: 320px; }
   .mag-card.mag-big .mag-body { padding: 28px 32px 28px; }
   .mag-card.mag-big .mag-title { font-size: clamp(26px, 2.4vw, 36px); }
-  .mag-card.mag-side .mag-cover { width: 38%; min-width: 130px; }
+  .mag-card.mag-side .mag-cover {
+    width: 38%;
+    min-width: 130px;
+    aspect-ratio: unset;
+    align-self: stretch;
+  }
   .mag-card.mag-side .mag-body { padding: 16px 18px; }
   .mag-card.mag-side .mag-title { font-size: 16px; }
   
@@ -3239,4 +3279,284 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
   padding-left: 10px;
   border-left: 1px solid color-mix(in oklch, var(--paper) 30%, transparent);
   margin-left: 2px;
+}
+
+/* ===== Scrollbar — themed to match page styles ===== */
+/* Firefox */
+html {
+  scrollbar-width: auto;
+  scrollbar-color: var(--ink) var(--bg-2);
+}
+
+/* WebKit / Chromium / Safari */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-2);
+  border-left: 1px solid var(--line);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink);
+  border: 3px solid var(--bg-2);
+  border-radius: 999px;
+  background-clip: padding-box;
+  min-height: 48px;
+  transition: background 0.2s;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:active {
+  background: var(--accent);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: var(--bg-2);
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+  scrollbar-color: var(--ink-2) var(--bg-2);
+}
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-2);
+  border-left-color: var(--line);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--ink-2);
+  border-color: var(--bg-2);
+  background-clip: padding-box;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  background-clip: padding-box;
+}
+
+/* ============================================================
+ * Project images — gallery + cover overrides (FR-006/FR-007/FR-024)
+ * Reserves aspect ratio to prevent CLS; touch targets ≥ 44×44 on mobile.
+ * ============================================================ */
+.feat-card .feat-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.modal-cover img {
+  width: 100%;
+  height: auto;
+  max-height: min(400px, 50vh);
+  display: block;
+}
+.modal-gallery-wrap {
+  margin-bottom: 32px;
+  clear: both;
+}
+
+.project-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.project-gallery-primary {
+  position: relative;
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+  line-height: 0;
+  isolation: isolate;
+}
+.project-gallery-primary img {
+  width: 100%;
+  height: auto;
+  max-height: min(400px, 50vh);
+  display: block;
+}
+.project-gallery-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin-block: auto;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  z-index: 2;
+  padding: 0;
+  box-shadow: 2px 2px 0 0 var(--ink);
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.project-gallery-arrow svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex-shrink: 0;
+}
+.project-gallery-arrow:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.project-gallery-arrow-prev { left: 10px; }
+.project-gallery-arrow-next { right: 10px; }
+.project-gallery-counter {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--muted);
+  background: color-mix(in oklch, var(--paper) 90%, transparent);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+.project-gallery-counter-current {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.project-gallery-counter-sep {
+  opacity: 0.45;
+}
+.project-gallery-counter-total {
+  font-size: 11px;
+}
+.project-gallery-caption {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* Mobile: enforce ≥44×44px touch targets per FR-024. */
+@media (max-width: 768px) {
+  .project-gallery-arrow {
+    width: 44px;
+    height: 44px;
+  }
+  .project-gallery-arrow svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.blog-view-all {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+.blog-view-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.blog-archive-page .section {
+  padding-top: 0;
+}
+.blog-archive-page .blog-archive-head {
+  padding: 100px 0 56px;
+}
+.blog-archive-lede {
+  color: var(--muted);
+  max-width: 540px;
+  margin-top: 22px;
+  font-size: 17px;
+  line-height: 1.55;
+}
+.blog-archive-page #blog .sect-head {
+  display: none;
+}
+.blog-archive-page #blog.section-divider::before {
+  display: none;
+}
+.blog-archive-page #blog .filters {
+  margin-top: 0;
+  margin-bottom: 40px;
+}
+
+/* Blog preview cards — fill the cover area (homepage #blog only). */
+#blog .mag-top {
+  align-items: start;
+}
+#blog .mag-card.mag-big .mag-cover {
+  aspect-ratio: 16 / 10;
+  max-height: 200px;
+  flex-shrink: 0;
+}
+#blog .mag-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+#blog .mag-cover .cover {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: unset;
+  min-height: 100%;
+}
+@media (min-width: 768px) {
+  #blog .mag-card.mag-big .mag-cover {
+    max-height: 220px;
+  }
+  #blog .mag-card.mag-side .mag-cover {
+    aspect-ratio: unset;
+    align-self: stretch;
+    width: 42%;
+    min-width: 110px;
+  }
+  #blog .mag-card.mag-side .mag-cover img,
+  #blog .mag-card.mag-side .mag-cover .cover {
+    min-height: 100%;
+  }
+}
+@media (min-width: 1280px) {
+  #blog .mag-card.mag-big .mag-cover {
+    max-height: 260px;
+  }
+}
+
+/* Blog post hero — uniform height on every post page. */
+.post-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@media (min-width: 768px) {
+  .post-cover {
+    height: 350px;
+  }
+  .post-more .mag-card .mag-cover {
+    height: 220px;
+  }
+}
+@media (min-width: 1280px) {
+  .post-cover {
+    height: 420px;
+  }
+  .post-more .mag-card .mag-cover {
+    height: 230px;
+  }
 }

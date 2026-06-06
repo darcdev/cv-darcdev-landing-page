@@ -9,7 +9,9 @@
  * are async and tree-shaken from the browser bundle).
  */
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
-import { defaultLocale, supportedCodes, isLocaleCode } from '../i18n/config';
+import { defaultLocale, supportedCodes, isLocaleCode, resolveLocale } from '../i18n/config';
+import { resolvePostHero } from '../lib/images';
+import type { ResolvedImage } from '../lib/imageTypes';
 
 export type CoverPattern = 'rag' | 'spec' | 'mcp' | 'arch' | 'oss' | 'pr';
 
@@ -30,6 +32,11 @@ export interface PostMeta {
   readMin: number;
   featured: boolean;
   cover: CoverPattern;
+  /**
+   * Optional hero image, pre-resolved at SSG for the listing context (`'card'`).
+   * `null` (or omitted) → caller renders the SVG cover-pattern fallback.
+   */
+  heroImage?: ResolvedImage | null;
 }
 
 export type PostsByLocale = Record<string, PostMeta[]>;
@@ -42,7 +49,12 @@ function splitEntryId(entryId: string): { locale: string; slug: string } | null 
   return { locale, slug };
 }
 
-function toMeta(entry: CollectionEntry<'posts'>, locale: string, slug: string): PostMeta {
+function toMeta(
+  entry: CollectionEntry<'posts'>,
+  locale: string,
+  slug: string,
+  heroImage: ResolvedImage | null,
+): PostMeta {
   return {
     id: slug,
     locale,
@@ -55,6 +67,7 @@ function toMeta(entry: CollectionEntry<'posts'>, locale: string, slug: string): 
     readMin: entry.data.readMin,
     featured: entry.data.featured ?? false,
     cover: entry.data.cover,
+    heroImage,
   };
 }
 
@@ -68,11 +81,22 @@ export async function loadPostsByLocale(): Promise<PostsByLocale> {
   const byLocale: PostsByLocale = {};
   for (const code of supportedCodes) byLocale[code] = [];
 
-  for (const entry of all) {
-    const parsed = splitEntryId(entry.id);
-    if (!parsed) continue;
-    if (!isLocaleCode(parsed.locale)) continue;
-    byLocale[parsed.locale].push(toMeta(entry, parsed.locale, parsed.slug));
+  // Resolve every entry's listing-size hero in parallel.
+  const resolvedEntries = await Promise.all(
+    all.map(async (entry) => {
+      const parsed = splitEntryId(entry.id);
+      if (!parsed) return null;
+      if (!isLocaleCode(parsed.locale)) return null;
+      const hero = await resolvePostHero(entry, resolveLocale(parsed.locale), 'card');
+      return { entry, parsed, hero };
+    }),
+  );
+
+  for (const item of resolvedEntries) {
+    if (!item) continue;
+    byLocale[item.parsed.locale].push(
+      toMeta(item.entry, item.parsed.locale, item.parsed.slug, item.hero),
+    );
   }
 
   for (const code of Object.keys(byLocale)) {
@@ -89,10 +113,10 @@ export async function loadPostsByLocale(): Promise<PostsByLocale> {
  * surface predictable.
  */
 export async function loadDefaultLocaleSlugs(): Promise<string[]> {
-  const all = await getCollection('posts', ({ id }) => id.startsWith(`${defaultLocale}/`));
+  const all = await getCollection('posts', ({ id }: { id: string }) => id.startsWith(`${defaultLocale}/`));
   return all
-    .map((e) => splitEntryId(e.id)?.slug)
-    .filter((s): s is string => Boolean(s));
+    .map((e: CollectionEntry<'posts'>) => splitEntryId(e.id)?.slug)
+    .filter((s: string | undefined): s is string => Boolean(s));
 }
 
 /**

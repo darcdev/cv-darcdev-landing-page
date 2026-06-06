@@ -2,45 +2,47 @@
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
 
-## Current Feature: Multi-Language Translation (i18n)
+## Current Feature: Project & Blog Images
 
-**Branch**: `005-i18n-translation`
+**Branch**: `006-project-blog-images`
 
-**Plan**: [specs/005-i18n-translation/plan.md](specs/005-i18n-translation/plan.md)
+**Plan**: [specs/006-project-blog-images/plan.md](specs/006-project-blog-images/plan.md)
 
 ### Quick Reference
 
 - **Stack**: Astro 4.16, Preact 10, TypeScript 5.6 (strict). No new runtime deps.
-- **Focus**: Spanish (default) + English on launch, extensible to N languages by adding one JSON file.
-- **Approach**: Hand-rolled key→string catalogs, SSG renders default locale, client-side DOM swap on toggle via `[data-i18n]` markers.
+- **Focus**: Multi-image gallery on projects + single hero image on blog posts. SVG cover patterns kept as fallback (additive, zero migration).
+- **Approach**: `getImage()` at SSG produces optimized descriptors; Preact island renders `<img>` from props. Local + external sources supported. Build-time parity checker mirrors `check-i18n.ts`.
 
 ### Key Documents
 
-- [Specification](specs/005-i18n-translation/spec.md) — User stories, FR-001…FR-012, success criteria
-- [Plan](specs/005-i18n-translation/plan.md) — Technical context, constitution gates, project structure
-- [Research](specs/005-i18n-translation/research.md) — 7 decisions with rationale + alternatives
-- [Data Model](specs/005-i18n-translation/data-model.md) — Locale, Catalog, Key, Preference, validation rules
-- [Contracts](specs/005-i18n-translation/contracts/) — `i18n-api.md` (module surface) + `locale-catalog.schema.json`
-- [Quickstart](specs/005-i18n-translation/quickstart.md) — Verification, content audit, add-a-language guide
+- [Specification](specs/006-project-blog-images/spec.md) — User stories, FR-001…FR-024, success criteria
+- [Plan](specs/006-project-blog-images/plan.md) — Technical context, constitution gates, project structure
+- [Research](specs/006-project-blog-images/research.md) — 7 decisions (storage, optimization, fallback, alt placement, validation, gallery UX, hero rendering)
+- [Data Model](specs/006-project-blog-images/data-model.md) — `ProjectImageSource`, `ProjectImageTranslated`, `ResolvedImage`, post hero schema
+- [Contracts](specs/006-project-blog-images/contracts/) — `image-api.md` (module surface, schema, CLI)
+- [Quickstart](specs/006-project-blog-images/quickstart.md) — Verification + author-an-image guide
 
 ### Constitution Principles
 
-1. **Component-First Architecture** — i18n lives under `src/i18n/`, switcher under `src/components/islands/`
-2. **Static-First, Islands for Interactivity** — Default locale rendered at SSG; switcher is `client:idle`
-3. **Design Fidelity (NON-NEGOTIABLE)** — Translation only changes text; never markup or styles
-4. **Accessibility & Performance** — `<html lang>` updates, 44×44 px targets, Lighthouse ≥ 95
-5. **Maintainability & Extensibility** — New language = 1 JSON file + 1 line in `src/i18n/config.ts`
+1. **Component-First Architecture** — `ProjectGallery` is a self-contained sub-island; `Cover` atom decides image vs. SVG
+2. **Static-First, Islands for Interactivity** — Image descriptors resolved at SSG via `getImage()`; islands receive props only
+3. **Design Fidelity (NON-NEGOTIABLE)** — Empty-images path is byte-identical to today (SC-007)
+4. **Accessibility & Performance** — `<Image>` mandated; alt-text required in default locale; 44×44 px gallery controls; reserved aspect ratio (no CLS)
+5. **Maintainability & Extensibility** — Add a project image: append to one shared array + one alt entry per locale. New language inherits parity automatically.
 
 ### Files to Add / Modify
 
-- `src/i18n/config.ts` — Supported locales registry (NEW)
-- `src/i18n/translate.ts` — `t(key, params?, locale?)` build-time helper (NEW)
-- `src/i18n/client.ts` — Browser runtime: detect, persist, swap DOM (NEW)
-- `src/i18n/locales/{es,en}.json` — Catalogs (NEW)
-- `src/components/islands/LanguageSwitcher.tsx` — Preact island (NEW)
-- `scripts/check-i18n.ts` — Build-time parity checker, wired into `npm run build` (NEW)
-- `src/layouts/BaseLayout.astro` — Embed catalogs, mount switcher, `<html lang>` (MODIFY)
-- All `.astro` components — Replace literal strings with `t('…')` + add `data-i18n` markers (MODIFY)
-- `src/pages/index.astro`, `src/pages/blog/[slug].astro` — i18n integration (MODIFY)
-- `package.json` — Add `i18n:check` script + extend `build` (MODIFY)
+- `src/lib/images.ts` + `src/lib/imageTypes.ts` — `resolveProjectImages`, `resolvePostHero`, `ResolvedImage` (NEW)
+- `src/components/islands/ProjectGallery.tsx` — Keyboard-navigable Preact gallery (NEW)
+- `src/assets/images/projects/<id>/`, `src/assets/images/posts/` — Image asset folders (NEW)
+- `scripts/check-images.ts` — Build-time validator, wired into `npm run build` (NEW)
+- `src/data/projects.ts` — Add `images: ProjectImageSource[]` to shared, `images: ProjectImageTranslated[]` to translated (MODIFY)
+- `src/content/config.ts` — Add `heroImage` / `heroImageUrl` / `heroImageAlt` to post schema (MODIFY)
+- `src/components/atoms/Cover.astro` — Accept optional pre-resolved image; fallback to SVG (MODIFY)
+- `src/components/islands/ProjectsSection.tsx` — Mount `ProjectGallery` when images present (MODIFY)
+- `src/components/islands/BlogSection.tsx` — Render hero image when present in card (MODIFY)
+- `src/pages/[lang]/index.astro`, `src/pages/[lang]/blog/[slug].astro`, `src/pages/[lang]/blog/index.astro` — Resolve images at SSG, pass as props (MODIFY)
+- `src/styles/global.css` — Gallery + hero styles, no new tokens (MODIFY)
+- `package.json` — Add `images:check` script + extend `build` (MODIFY)
 <!-- SPECKIT END -->

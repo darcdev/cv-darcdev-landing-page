@@ -65,6 +65,9 @@
   "projects.modal.client": "Client",
   "projects.modal.status": "Status",
   "projects.modal.stack": "Stack",
+  "projects.gallery.counter": "{n} / {total}",
+  "projects.gallery.prev": "Previous image",
+  "projects.gallery.next": "Next image",
 
   "ask.eyebrow": "Live demo",
   "ask.title": "The idea I take to production,<br/>right here.",
@@ -93,6 +96,9 @@
   "blog.empty": "No posts in this category.",
   "blog.most_recent": "Most recent",
   "blog.min_read": "min read",
+  "blog.view_all": "View all posts ({count})",
+  "blog.archive.title": "All <span class=\"serif-it\">posts</span>",
+  "blog.archive.back": "Back to home",
 
   "contact.eyebrow": "Contact",
   "contact.title": "Shall we build<br/><span class=\"it\">something together?</span>",

@@ -1,11 +1,35 @@
 import { useState, useMemo, useEffect } from 'preact/hooks';
 import type { FunctionComponent } from 'preact';
-import { getProjects, getProjectTypes, getAllLabel, getStatusLabel, type Project } from '../../data/projects';
+import { getProjectTypes, getAllLabel, getStatusLabel, type Project } from '../../data/projects';
+import type { ResolvedImage } from '../../lib/imageTypes';
+import ProjectGallery from './ProjectGallery';
 import { t } from '../../i18n/translate';
+
+/**
+ * A project enriched with images already resolved at SSG via getImage().
+ * The page resolves card + modal contexts up-front so the island can render
+ * the right size without invoking server-only APIs.
+ */
+export interface ProjectWithImages extends Project {
+  resolvedImages: {
+    card: ResolvedImage[];
+    modal: ResolvedImage[];
+  };
+}
+
+export interface GalleryStrings {
+  counterLabel: string;
+  prevLabel: string;
+  nextLabel: string;
+}
 
 interface Props {
   /** Active locale code. */
   locale: string;
+  /** Projects pre-resolved at SSG with optimized image descriptors. */
+  projects: ProjectWithImages[];
+  /** Pre-translated strings for the gallery island. */
+  galleryStrings: GalleryStrings;
 }
 
 function Cover({ kind }: { kind: string }) {
@@ -26,7 +50,17 @@ function Filters({ options, value, onChange }: { options: string[]; value: strin
   );
 }
 
-function ProjectModal({ project, lang, onClose }: { project: Project; lang: string; onClose: () => void }) {
+function ProjectModal({
+  project,
+  lang,
+  galleryStrings,
+  onClose,
+}: {
+  project: ProjectWithImages;
+  lang: string;
+  galleryStrings: GalleryStrings;
+  onClose: () => void;
+}) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', onKey);
@@ -36,6 +70,9 @@ function ProjectModal({ project, lang, onClose }: { project: Project; lang: stri
       document.body.style.overflow = '';
     };
   }, []);
+
+  const modalImages = project.resolvedImages.modal;
+  const hasImages = modalImages.length > 0;
 
   return (
     <div class="modal-backdrop" onClick={onClose}>
@@ -53,9 +90,20 @@ function ProjectModal({ project, lang, onClose }: { project: Project; lang: stri
             <span class="modal-live-host">{project.liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
           </a>
         )}
-        <div class="modal-cover">
-          <Cover kind={project.cover} />
-        </div>
+        {hasImages ? (
+          <div class="modal-gallery-wrap">
+            <ProjectGallery
+              images={modalImages}
+              counterLabel={galleryStrings.counterLabel}
+              prevLabel={galleryStrings.prevLabel}
+              nextLabel={galleryStrings.nextLabel}
+            />
+          </div>
+        ) : (
+          <div class="modal-cover">
+            <Cover kind={project.cover} />
+          </div>
+        )}
         <div class="modal-cols">
           <div>
             <div class="modal-section">
@@ -103,14 +151,13 @@ function ProjectModal({ project, lang, onClose }: { project: Project; lang: stri
   );
 }
 
-const ProjectsSection: FunctionComponent<Props> = ({ locale }) => {
+const ProjectsSection: FunctionComponent<Props> = ({ locale, projects, galleryStrings }) => {
   const lang = locale;
   const allLabel = getAllLabel(lang);
   const [filter, setFilter] = useState<string>(allLabel);
   const [search, setSearch] = useState('');
   const [modalId, setModalId] = useState<string | null>(null);
 
-  const projects = useMemo(() => getProjects(lang), [lang]);
   const projectTypes = useMemo(() => getProjectTypes(lang), [lang]);
 
   const filtered = useMemo(() => {
@@ -163,32 +210,48 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale }) => {
 
         <div class="reveal in">
           <div class="featured-grid">
-            {featured.map((p) => (
-              <div key={p.id} class="feat-card" onClick={() => setModalId(p.id)}>
-                <div class="feat-cover">
-                  <Cover kind={p.cover} />
-                  <span class="feat-num">★ {t('projects.featured', undefined, lang)}</span>
-                  {p.liveUrl && (
-                    <a
-                      class="feat-live"
-                      href={p.liveUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
-                      <span>{t('projects.view_site', undefined, lang)}</span>
-                    </a>
-                  )}
+            {featured.map((p) => {
+              const cardImg = p.resolvedImages.card[0];
+              return (
+                <div key={p.id} class="feat-card" onClick={() => setModalId(p.id)}>
+                  <div class="feat-cover">
+                    {cardImg ? (
+                      <img
+                        src={cardImg.src}
+                        srcset={cardImg.srcset || undefined}
+                        sizes={cardImg.sizes || undefined}
+                        width={cardImg.width}
+                        height={cardImg.height}
+                        alt={cardImg.alt}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <Cover kind={p.cover} />
+                    )}
+                    <span class="feat-num">★ {t('projects.featured', undefined, lang)}</span>
+                    {p.liveUrl && (
+                      <a
+                        class="feat-live"
+                        href={p.liveUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+                        <span>{t('projects.view_site', undefined, lang)}</span>
+                      </a>
+                    )}
+                  </div>
+                  <h3>{p.title}</h3>
+                  <p class="tagline">{p.tagline}</p>
+                  <div class="meta">
+                    <span>{p.type}</span>
+                    <span>{p.year}</span>
+                  </div>
                 </div>
-                <h3>{p.title}</h3>
-                <p class="tagline">{p.tagline}</p>
-                <div class="meta">
-                  <span>{p.type}</span>
-                  <span>{p.year}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -243,7 +306,12 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale }) => {
       </div>
 
       {modalProject && (
-        <ProjectModal project={modalProject} lang={lang} onClose={() => setModalId(null)} />
+        <ProjectModal
+          project={modalProject}
+          lang={lang}
+          galleryStrings={galleryStrings}
+          onClose={() => setModalId(null)}
+        />
       )}
     </section>
   );

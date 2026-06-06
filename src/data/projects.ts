@@ -19,6 +19,27 @@ import { defaultLocale, resolveLocale, type LocaleCode } from '../i18n/config';
 export type ProjectStatus = 'in-production' | 'rollout' | 'mvp' | 'acquired';
 export type CoverPattern = 'rag' | 'spec' | 'mcp' | 'arch' | 'oss' | 'pr';
 
+/**
+ * Source of a single project image (locale-agnostic).
+ *
+ * - `local` paths are relative to `src/assets/images/projects/<project-id>/`
+ *   and MUST point to an existing file (validated by scripts/check-images.ts).
+ * - `external` URLs MUST start with `https://`.
+ */
+export type ProjectImageSource =
+  | { kind: 'local'; path: string }
+  | { kind: 'external'; url: string };
+
+/**
+ * Per-locale alt-text and optional caption for a single project image.
+ * Length MUST mirror `ProjectShared.images.length` in the default locale.
+ */
+export interface ProjectImageTranslated {
+  /** Required and non-empty in the default locale; falls back at runtime in others. */
+  alt: string;
+  caption?: string;
+}
+
 /** Locale-agnostic project fields. */
 export interface ProjectShared {
   id: string;
@@ -29,6 +50,8 @@ export interface ProjectShared {
   stack: string[];
   status: ProjectStatus;
   cover: CoverPattern;
+  /** Ordered list of project images. Empty array → SVG cover pattern is used (SC-007). */
+  images: ProjectImageSource[];
 }
 
 /** Per-locale, human-facing project fields. */
@@ -43,10 +66,26 @@ export interface ProjectTranslated {
   problem: string;
   solution: string;
   impact: string[];
+  /**
+   * Per-locale alt/caption metadata, position-aligned with `ProjectShared.images`.
+   * Length MUST equal `images.length` in the default locale.
+   */
+  images: ProjectImageTranslated[];
 }
 
-/** Resolved project for a specific locale. */
-export interface Project extends ProjectShared, ProjectTranslated {}
+/**
+ * Resolved project for a specific locale.
+ *
+ * `images` is the merged view: each entry carries the locale-agnostic source
+ * (`ProjectImageSource`) AND the translated alt / caption already resolved
+ * via default-locale fallback. Consumers (resolveProjectImages, ProjectsSection)
+ * can rely on `images[i].alt` being non-empty.
+ */
+export interface Project
+  extends Omit<ProjectShared, 'images'>,
+    Omit<ProjectTranslated, 'images'> {
+  images: Array<ProjectImageSource & ProjectImageTranslated>;
+}
 
 export const PROJECTS_SHARED: ProjectShared[] = [
   {
@@ -57,6 +96,11 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     cover: 'rag',
     tags: ['Python', 'LangChain', 'Weaviate', 'RAG', 'LLMs'],
     stack: ['Python', 'LangChain', 'Weaviate', 'FastAPI', 'OpenAI', 'Docker'],
+    images: [
+      { kind: 'local', path: 'rag-agent/dashboard.jpg' },
+      { kind: 'local', path: 'rag-agent/conversation.jpg' },
+      { kind: 'local', path: 'rag-agent/architecture.jpg' },
+    ],
   },
   {
     id: 'spec-driven',
@@ -66,6 +110,7 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     cover: 'spec',
     tags: ['MCP', 'Agentes', 'DevEx', 'Spec-Driven'],
     stack: ['MCP', 'Claude Code', 'TypeScript', 'Markdown', 'GitHub Actions'],
+    images: [],
   },
   {
     id: 'ai-pr-review',
@@ -75,6 +120,7 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     cover: 'pr',
     tags: ['CI/CD', 'LLMs', 'GitHub Actions'],
     stack: ['GitHub Actions', 'TypeScript', 'OpenAI', 'Reglas custom'],
+    images: [],
   },
   {
     id: 'jackcore',
@@ -84,6 +130,7 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     cover: 'arch',
     tags: ['.NET Core', 'Spring Boot', 'Angular', 'Microservicios'],
     stack: ['.NET Core', 'Java Spring Boot', 'Angular', 'SQL Server', 'Oracle'],
+    images: [],
   },
   {
     id: 'govcodepro',
@@ -93,6 +140,7 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     cover: 'mcp',
     tags: ['Angular', 'Camunda', 'BPMN'],
     stack: ['Angular', 'Camunda', 'TypeScript', '.NET Core'],
+    images: [],
   },
   {
     id: 'trip-planner',
@@ -103,6 +151,10 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     liveUrl: 'https://layla.com',
     tags: ['React', 'TypeScript', 'IA'],
     stack: ['React', 'TypeScript', 'Vite', 'OpenAI'],
+    images: [
+      { kind: 'external', url: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600&q=80' },
+      { kind: 'external', url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600&q=80' },
+    ],
   },
   {
     id: 'luminara',
@@ -113,6 +165,7 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     liveUrl: 'https://luminara.com',
     tags: ['Next.js', 'Claude Code', 'Cursor'],
     stack: ['Next.js', 'Tailwind', 'TypeScript'],
+    images: [],
   },
   {
     id: 'albertcts',
@@ -123,6 +176,7 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     liveUrl: 'https://albertcts.com',
     tags: ['Cursor', 'Copilot', 'Next.js'],
     stack: ['Next.js', 'TypeScript', 'Tailwind'],
+    images: [],
   },
   {
     id: 'b2b-materiales',
@@ -132,6 +186,7 @@ export const PROJECTS_SHARED: ProjectShared[] = [
     cover: 'arch',
     tags: ['React Native', 'Node.js', 'B2B'],
     stack: ['React Native', 'Node.js', 'PostgreSQL'],
+    images: [],
   },
 ];
 
@@ -154,6 +209,11 @@ export const PROJECTS_BY_LOCALE: Record<
         '100% de respuestas con cita a fuente',
         '12 equipos adoptaron la herramienta en 3 meses',
       ],
+      images: [
+        { alt: 'Dashboard del agente RAG mostrando métricas de uso', caption: 'Panel principal con métricas en vivo.' },
+        { alt: 'Pantalla de conversación con citas a documentos fuente' },
+        { alt: 'Diagrama de arquitectura del pipeline RAG', caption: 'Pipeline: ingesta → embeddings → reranking → respuesta.' },
+      ],
     },
     'spec-driven': {
       title: 'Spec-Driven Development con IA',
@@ -169,6 +229,7 @@ export const PROJECTS_BY_LOCALE: Record<
         'Estándares aplicados de forma automática',
         'Onboarding más corto para nuevos devs',
       ],
+      images: [],
     },
     'ai-pr-review': {
       title: 'Revisión de PRs con IA',
@@ -180,6 +241,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Reviewers gastaban tiempo en hallazgos repetitivos.',
       solution: 'Pipeline en GitHub Actions con prompts especializados por lenguaje y reglas custom de la organización.',
       impact: ['−40% comentarios manuales repetitivos', 'Mayor consistencia entre equipos'],
+      images: [],
     },
     'jackcore': {
       title: 'Migración Monolito → Microservicios',
@@ -195,6 +257,7 @@ export const PROJECTS_BY_LOCALE: Record<
         'Costo de nuevos desarrollos reducido',
         'Despliegues independientes por dominio',
       ],
+      images: [],
     },
     'govcodepro': {
       title: 'GovcodePro — Form Builder Dinámico',
@@ -206,6 +269,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Formularios complejos requerían días de desarrollo a la medida.',
       solution: 'Motor declarativo con validaciones, reglas y orquestación BPMN.',
       impact: ['Creación de formularios pasó de días a minutos', 'Adoptado por múltiples portales'],
+      images: [],
     },
     'trip-planner': {
       title: 'Trip Planner IA',
@@ -217,6 +281,10 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Arquitectura frontend acoplada limitaba escalar features de planificación con IA.',
       solution: 'Arquitectura por features, state management aislado, streaming UI para respuestas del modelo y observabilidad de prompts.',
       impact: ['Mejor rendimiento percibido', 'Base sostenible para nuevos features de IA'],
+      images: [
+        { alt: 'Mochilero observando montañas al atardecer', caption: 'Inspiración de viaje generada por el agente.' },
+        { alt: 'Vista aérea de carretera de montaña al amanecer' },
+      ],
     },
     'luminara': {
       title: 'Landing Luminara',
@@ -228,6 +296,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Time-to-market crítico para una landing con animaciones y SEO.',
       solution: 'Workflow Spec-Driven con prompts versionados y revisión humana en cada commit.',
       impact: ['Entrega acelerada', 'Código sostenible para iteraciones futuras'],
+      images: [],
     },
     'albertcts': {
       title: 'Landing AlbertCTS',
@@ -239,6 +308,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Cliente necesitaba presencia online con corto plazo de entrega.',
       solution: 'Componentes reusables, generación asistida y revisión humana.',
       impact: ['Time-to-market −70%', 'Cliente activo en producción'],
+      images: [],
     },
     'b2b-materiales': {
       title: 'MVP B2B de Materiales',
@@ -250,6 +320,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Operadores trabajaban con planillas y llamadas.',
       solution: 'App nativa con flujo de cotización, orden y seguimiento.',
       impact: ['MVP validado con primeros clientes piloto'],
+      images: [],
     },
   },
   en: {
@@ -267,6 +338,11 @@ export const PROJECTS_BY_LOCALE: Record<
         '100% of answers include source citations',
         '12 teams adopted the tool within 3 months',
       ],
+      images: [
+        { alt: 'RAG agent dashboard with live usage metrics', caption: 'Main panel with live metrics.' },
+        { alt: 'Conversation view with citations to source documents' },
+        { alt: 'RAG pipeline architecture diagram', caption: 'Pipeline: ingestion → embeddings → reranking → answer.' },
+      ],
     },
     'spec-driven': {
       title: 'Spec-Driven Development with AI',
@@ -282,6 +358,7 @@ export const PROJECTS_BY_LOCALE: Record<
         'Standards applied automatically',
         'Shorter onboarding for new developers',
       ],
+      images: [],
     },
     'ai-pr-review': {
       title: 'AI-powered PR Review',
@@ -293,6 +370,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Reviewers were spending time on repetitive findings.',
       solution: 'GitHub Actions pipeline with language-specialized prompts and custom organizational rules.',
       impact: ['−40% repetitive manual comments', 'Higher consistency across teams'],
+      images: [],
     },
     'jackcore': {
       title: 'Monolith → Microservices Migration',
@@ -308,6 +386,7 @@ export const PROJECTS_BY_LOCALE: Record<
         'Cost of new development reduced',
         'Independent deployments per domain',
       ],
+      images: [],
     },
     'govcodepro': {
       title: 'GovcodePro — Dynamic Form Builder',
@@ -319,6 +398,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Complex forms required days of bespoke development.',
       solution: 'Declarative engine with validations, rules and BPMN orchestration.',
       impact: ['Form creation went from days to minutes', 'Adopted by multiple portals'],
+      images: [],
     },
     'trip-planner': {
       title: 'Trip Planner AI',
@@ -330,6 +410,10 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Coupled frontend architecture limited scaling AI planning features.',
       solution: 'Feature-based architecture, isolated state management, streaming UI for model responses and prompt observability.',
       impact: ['Better perceived performance', 'Sustainable foundation for new AI features'],
+      images: [
+        { alt: 'Backpacker watching mountains at sunset', caption: 'Travel inspiration generated by the agent.' },
+        { alt: 'Aerial view of a mountain road at sunrise' },
+      ],
     },
     'luminara': {
       title: 'Luminara Landing',
@@ -341,6 +425,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Critical time-to-market for a landing with animations and SEO.',
       solution: 'Spec-Driven workflow with versioned prompts and human review on every commit.',
       impact: ['Accelerated delivery', 'Sustainable code for future iterations'],
+      images: [],
     },
     'albertcts': {
       title: 'AlbertCTS Landing',
@@ -352,6 +437,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Client needed an online presence with a tight delivery deadline.',
       solution: 'Reusable components, AI-assisted generation and human review.',
       impact: ['Time-to-market −70%', 'Client live in production'],
+      images: [],
     },
     'b2b-materiales': {
       title: 'B2B Materials MVP',
@@ -363,6 +449,7 @@ export const PROJECTS_BY_LOCALE: Record<
       problem: 'Operators worked with spreadsheets and phone calls.',
       solution: 'Native app with quote, order and tracking flow.',
       impact: ['MVP validated with first pilot clients'],
+      images: [],
     },
   },
 };
@@ -396,10 +483,29 @@ export function getProjects(locale: string = defaultLocale): Project[] {
   const code = resolveLocale(locale);
   const map = PROJECTS_BY_LOCALE[code];
   const fallback = PROJECTS_BY_LOCALE[defaultLocale];
-  return PROJECTS_SHARED.map((shared) => ({
-    ...shared,
-    ...(map[shared.id] ?? fallback[shared.id]),
-  }));
+  return PROJECTS_SHARED.map((shared) => {
+    const translated = map[shared.id] ?? fallback[shared.id];
+    const fallbackTranslated = fallback[shared.id];
+    // Position-aligned merge: each source image gets locale alt/caption with
+    // default-locale fallback. Length follows the source array (the source of truth).
+    const images = shared.images.map((src, i) => {
+      const fromLocale = translated.images[i];
+      const fromFallback = fallbackTranslated.images[i];
+      const alt =
+        (fromLocale?.alt && fromLocale.alt.trim().length > 0
+          ? fromLocale.alt
+          : fromFallback?.alt) ?? '';
+      const caption = fromLocale?.caption ?? fromFallback?.caption;
+      return { ...src, alt, ...(caption !== undefined ? { caption } : {}) };
+    });
+    // Drop the per-locale `images` raw array from the spread; the merged version above wins.
+    const { images: _ignored, ...translatedRest } = translated;
+    return {
+      ...shared,
+      ...translatedRest,
+      images,
+    };
+  });
 }
 
 export function getStatusLabel(status: ProjectStatus, locale: string = defaultLocale): string {

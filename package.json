@@ -4,16 +4,18 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && npm run i18n:check && astro build",
+    "build": "astro check && npm run i18n:check && npm run images:check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "i18n:check": "tsx scripts/check-i18n.ts"
+    "i18n:check": "tsx scripts/check-i18n.ts",
+    "images:check": "tsx scripts/check-images.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.3",
     "@astrojs/preact": "^3.5.0",
     "astro": "^4.16.0",
     "preact": "^10.24.0",
+    "sharp": "^0.34.5",
     "typescript": "^5.6.0"
   },
   "devDependencies": {

@@ -10,6 +10,8 @@ interface Props {
   allLabel: string;
   /** Active locale code (used for translating UI strings). */
   locale: string;
+  /** When set, only this many posts are shown (homepage teaser). Omit on the archive page. */
+  previewLimit?: number;
 }
 
 function Cover({ kind, label }: { kind: CoverPattern; label?: string }) {
@@ -64,10 +66,24 @@ function Reveal({ children, delay = 0 }: { children: ComponentChildren; delay?: 
 
 function MagCard({ post, variant, locale }: { post: PostMeta; variant: 'big' | 'side' | 'base'; locale: string }) {
   const isBig = variant === 'big';
+  const hero = post.heroImage;
   return (
     <a href={`/${locale}/blog/${post.id}`} class={`mag-card mag-${variant}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div class="mag-cover">
-        <Cover kind={post.cover} label={post.category} />
+        {hero ? (
+          <img
+            src={hero.src}
+            srcset={hero.srcset || undefined}
+            sizes={hero.sizes || undefined}
+            width={hero.width}
+            height={hero.height}
+            alt={hero.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Cover kind={post.cover} label={post.category} />
+        )}
         {isBig && <span class="mag-feat-tag">★ {t('blog.most_recent', undefined, locale)}</span>}
       </div>
       <div class="mag-body">
@@ -94,7 +110,7 @@ function MagCard({ post, variant, locale }: { post: PostMeta; variant: 'big' | '
   );
 }
 
-const BlogSection: FunctionComponent<Props> = ({ posts, allLabel, locale }) => {
+const BlogSection: FunctionComponent<Props> = ({ posts, allLabel, locale, previewLimit }) => {
   const [cat, setCat] = useState(allLabel);
 
   const categories = useMemo(() => {
@@ -113,9 +129,13 @@ const BlogSection: FunctionComponent<Props> = ({ posts, allLabel, locale }) => {
     return [f, ...filtered.filter((p) => p !== f)];
   }, [filtered]);
 
-  const big = ordered[0];
-  const side = ordered.slice(1, 3);
-  const bottom = ordered.slice(3);
+  const isPreview = previewLimit != null && previewLimit > 0;
+  const display = isPreview ? ordered.slice(0, previewLimit) : ordered;
+  const hiddenCount = isPreview ? Math.max(0, filtered.length - previewLimit!) : 0;
+
+  const big = display[0];
+  const side = display.slice(1, 3);
+  const bottom = display.slice(3);
 
   return (
     <section id="blog" class="section section-divider" data-screen-label="05 blog">
@@ -166,6 +186,16 @@ const BlogSection: FunctionComponent<Props> = ({ posts, allLabel, locale }) => {
                   {bottom.map((p) => (
                     <MagCard key={p.id} post={p} variant="base" locale={locale} />
                   ))}
+                </div>
+              </Reveal>
+            )}
+            {hiddenCount > 0 && (
+              <Reveal delay={160}>
+                <div class="blog-view-all">
+                  <a href={`/${locale}/blog`} class="btn blog-view-all-btn">
+                    <span>{t('blog.view_all', { count: filtered.length }, locale)}</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
                 </div>
               </Reveal>
             )}
