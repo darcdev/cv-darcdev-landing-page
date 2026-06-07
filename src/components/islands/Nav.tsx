@@ -397,6 +397,21 @@ const Nav: FunctionComponent<Props> = ({ locale, activeNav }) => {
         </button>
 
         <div class="mobile-menu-inner">
+          <a
+            class="mobile-menu-brand"
+            href={`/${lang}/`}
+            onClick={(e) => { e.preventDefault(); navigateToSection("home"); }}
+          >
+            <img
+              class="mobile-menu-brand-img"
+              src={theme === "dark" ? "/darcdev-black.png" : "/darcdev-light.png"}
+              alt="Darcdev"
+              width="132"
+              height="28"
+            />
+            <span class="mobile-menu-brand-name">Darcdev</span>
+          </a>
+
           <div class="mobile-menu-links">
             {items.map((it) => (
               <button
