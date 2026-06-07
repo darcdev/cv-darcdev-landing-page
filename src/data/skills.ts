@@ -1,31 +1,14 @@
-/**
- * Skills, split into shared (locale-agnostic) and translated fields.
- *
- * The technical item names ("RAG", "LangChain", "PostgreSQL") are universal
- * and stay in `items`. Only the human-readable group label is translated.
- *
- * Each group has a stable `id`. Reordering SKILLS_SHARED never breaks
- * translations (lookup is by id, not array position).
- *
- * To add a new locale: extend the registry in src/i18n/config.ts and add a
- * matching object to SKILLS_BY_LOCALE — TypeScript will refuse to compile
- * if you forget.
- */
-
 import { defaultLocale, resolveLocale, type LocaleCode } from '../i18n/config';
 
-/** Locale-agnostic skill-group fields (id + technical item names). */
 export interface SkillGroupShared {
   id: string;
   items: string[];
 }
 
-/** Per-locale skill-group fields (just the human label). */
 export interface SkillGroupTranslated {
   group: string;
 }
 
-/** Resolved skill group for a specific locale. */
 export interface SkillGroup extends SkillGroupShared, SkillGroupTranslated {}
 
 export const SKILLS_SHARED: SkillGroupShared[] = [
@@ -87,8 +70,4 @@ export function getSkills(locale: string = defaultLocale): SkillGroup[] {
   }));
 }
 
-/**
- * Default-locale skills list, kept for backwards-compatibility with existing
- * imports. New code should prefer `getSkills(locale)`.
- */
 export const SKILLS: SkillGroup[] = getSkills(defaultLocale);

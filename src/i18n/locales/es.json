@@ -1,7 +1,6 @@
 {
   "meta.title": "Diego Cabrera · Tech Lead · IA",
   "meta.description": "Tech Lead con 7+ años construyendo soluciones full-stack. Especializado en RAG, MCP y Spec-Driven Development.",
-
   "nav.home": "Inicio",
   "nav.about": "Sobre mí",
   "nav.projects": "Proyectos",
@@ -11,7 +10,6 @@
   "nav.lang.aria": "Seleccionar idioma",
   "nav.menu.open": "Abrir menú",
   "nav.menu.close": "Cerrar menú",
-
   "hero.eyebrow": "Tech Lead · Bogotá",
   "hero.headline": "Construyo<br/><span class=\"underline\">agentes</span> que llevan<br/>la IA a producto real.",
   "hero.sub": "7+ años liderando full-stack para gobierno y empresa privada. Hoy aplico RAG, MCP y Spec-Driven Development al ciclo de desarrollo — desde la arquitectura hasta el commit.",
@@ -19,12 +17,10 @@
   "hero.cta.contact": "Hablemos",
   "hero.status": "Disponible",
   "hero.social.cv": "Ver CV",
-
   "terminal.out.whoami": "<b>Diego Cabrera</b> · Tech Lead · IA Aplicada al Desarrollo",
   "terminal.out.focus": "Construyo agentes <b>RAG</b>, plataformas con <b>MCP</b> y workflows de <b>Spec-Driven Development</b>.",
   "terminal.out.ls": "rag-agent/&nbsp;&nbsp;spec-driven/&nbsp;&nbsp;ai-pr-review/&nbsp;&nbsp;trip-planner/",
   "terminal.out.status": "<b style=\"color: var(--accent)\">● disponible</b> para nuevos proyectos",
-
   "about.eyebrow": "Sobre mí",
   "about.title": "Tech Lead que <span class=\"serif-it\">codea</span>,<br/>arquitecto que <span class=\"serif-it\">escucha</span>.",
   "about.bio": "Soy <strong>Diego Cabrera</strong>. He construido sistemas para entidades del Gobierno Colombiano, alcaldías y empresas privadas durante los últimos 7 años. <em> Mi día se reparte entre arquitectura, código hands-on y liderar equipos que aprenden a trabajar con agentes de IA.</em>",
@@ -46,7 +42,6 @@
   "about.experience.title": "Una década escribiendo software<br/>que <span class=\"serif-it\">importa</span>.",
   "about.stack.eyebrow": "Stack",
   "about.stack.title": "Herramientas que uso a diario.",
-
   "projects.eyebrow": "Proyectos",
   "projects.title": "Cosas que ya están <span class=\"serif-it\">en producción</span>.",
   "projects.search.placeholder": "Buscar proyecto, tag…",
@@ -68,7 +63,6 @@
   "projects.gallery.counter": "{n} / {total}",
   "projects.gallery.prev": "Imagen anterior",
   "projects.gallery.next": "Siguiente imagen",
-
   "ask.eyebrow": "Demo en vivo",
   "ask.title": "La idea que llevo a producción,<br/>aquí mismo.",
   "ask.box.eyebrow": "/ ask diego — agente rag",
@@ -88,7 +82,6 @@
   "ask.preset.p3.a": "Sí — disponible para colaboraciones sobre IA aplicada, arquitecturas escalables o plataformas internas.",
   "ask.preset.p4.q": "Muéstrame un proyecto",
   "ask.preset.p4.a": "Agente RAG conversacional sobre LangChain + Weaviate. En producción interna, redujo el tiempo de respuesta a consultas técnicas en ~85% y todas las respuestas incluyen citas a la fuente original.",
-
   "blog.eyebrow": "Blog",
   "blog.posts_label": "posts",
   "blog.title": "Notas de campo sobre <span class=\"serif-it\">IA aplicada</span>.",
@@ -97,9 +90,8 @@
   "blog.most_recent": "Más reciente",
   "blog.min_read": "min lectura",
   "blog.view_all": "Ver todos los posts ({count})",
-  "blog.archive.title": "Todos los <span class=\"serif-it\">posts</span>",
+  "blog.archive.title": "Todos los posts",
   "blog.archive.back": "Volver al inicio",
-
   "contact.eyebrow": "Contacto",
   "contact.title": "¿Construimos<br/><span class=\"it\">algo juntos?</span>",
   "contact.lede": "Disponible para proyectos de <strong style=\"color: var(--ink);\">IA aplicada</strong>, arquitectura escalable y consultoría de equipos que quieren integrar agentes a su flujo.",
@@ -114,14 +106,11 @@
   "contact.links.github": "GitHub",
   "contact.links.location": "Ubicación",
   "contact.links.copied": "✓ copiado al portapapeles",
-
   "whatsapp.message.work": "Hola Diego, me gustaría trabajar contigo en algo juntos.",
   "whatsapp.message.advisory": "Hola Diego, me gustaría solicitar una asesoría.",
   "whatsapp.float.aria": "Escríbeme por WhatsApp para trabajar juntos",
-
   "footer.copy": "© 2026 · Diego Cabrera · Bogotá, Colombia",
   "footer.built": "Construido con conocimiento y SDD",
-
   "post.back": "Volver al blog",
   "post.toc.title": "En este post",
   "post.share.title": "Compartir",

@@ -6,6 +6,8 @@ import { t } from '../../i18n/translate';
 interface Props {
   /** Active locale code for this route. */
   locale: string;
+  /** Server-resolved nav id for standalone routes (disables scroll-spy). */
+  activeNav?: string;
 }
 
 const Icon = {
@@ -99,15 +101,27 @@ function pathForLocale(targetCode: string): string {
   return `/${targetCode}/`;
 }
 
-const Nav: FunctionComponent<Props> = ({ locale }) => {
-  const [active, setActive] = useState("home");
+function routeActiveId(pathname: string, lang: string): string | null {
+  const blogPrefix = `/${lang}/blog`;
+  if (pathname === blogPrefix || pathname.startsWith(`${blogPrefix}/`)) {
+    return 'blog';
+  }
+  const homePath = `/${lang}/`;
+  if (pathname === homePath || pathname === `/${lang}`) {
+    return null;
+  }
+  return null;
+}
+
+const Nav: FunctionComponent<Props> = ({ locale, activeNav }) => {
+  const lang = isLocaleCode(locale) ? locale : defaultLocale;
+
+  const [active, setActive] = useState(activeNav ?? 'home');
   const [theme, setTheme] = useState("light");
   const [langOpen, setLangOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  const lang = isLocaleCode(locale) ? locale : defaultLocale;
 
   const items = [
     { id: "home",     key: "nav.home" },
@@ -131,11 +145,25 @@ const Nav: FunctionComponent<Props> = ({ locale }) => {
     document.documentElement.setAttribute("data-theme", initialTheme);
   }, []);
 
-  // ── Scroll-spy ─────────────────────────────────────────────────────────────
   useEffect(() => {
+    if (activeNav) {
+      setActive(activeNav);
+    }
+  }, [activeNav]);
+
+  // ── Scroll-spy (homepage sections only) ────────────────────────────────────
+  useEffect(() => {
+    if (activeNav) return;
+
     const sectionIds = ["home", "about", "projects", "blog", "contact"];
 
     const updateActive = () => {
+      const routeId = routeActiveId(window.location.pathname, lang);
+      if (routeId) {
+        setActive(routeId);
+        return;
+      }
+
       let currentId = "home";
       const y = window.scrollY + window.innerHeight * 0.45;
       const atPageBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 8;
@@ -161,7 +189,7 @@ const Nav: FunctionComponent<Props> = ({ locale }) => {
       window.removeEventListener("scroll", updateActive);
       window.removeEventListener("resize", updateActive);
     };
-  }, []);
+  }, [lang, activeNav]);
 
   // ── Lang dropdown outside-click / escape ───────────────────────────────────
   useEffect(() => {
@@ -231,6 +259,7 @@ const Nav: FunctionComponent<Props> = ({ locale }) => {
   const navigateToSection = (id: string) => {
     const homePath = `/${lang}/`;
     if (id === "blog") {
+      setActive("blog");
       window.location.href = `/${lang}/blog`;
       setMenuOpen(false);
       return;

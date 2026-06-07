@@ -1,38 +1,20 @@
-/**
- * Work experience, split into shared (locale-agnostic) and translated fields.
- *
- * Each entry has a stable `id` so translations are matched by ID, NOT by array
- * position. Reordering EXPERIENCES_SHARED never breaks translations.
- *
- * To add a new locale: extend the registry in src/i18n/config.ts and add a
- * matching object to EXPERIENCES_BY_LOCALE — TypeScript's exhaustive Record
- * check will fail the build if you forget. Within each locale you must provide
- * an entry for every id in EXPERIENCES_SHARED.
- */
-
 import { defaultLocale, resolveLocale, type LocaleCode } from '../i18n/config';
 
-/** Locale-agnostic experience fields (id + employer name). */
 export interface ExperienceShared {
   id: string;
   company: string;
 }
 
-/** Per-locale, human-facing experience fields. */
 export interface ExperienceTranslated {
   role: string;
   location: string;
   period: string;
   highlights: string[];
+  companyLabel?: string;
 }
 
-/** Resolved experience entry for a specific locale. */
 export interface Experience extends ExperienceShared, ExperienceTranslated {}
 
-/**
- * Stable ordering of experience entries (newest first). The `id` MUST be
- * stable; never rename it once it appears in EXPERIENCES_BY_LOCALE.
- */
 export const EXPERIENCES_SHARED: ExperienceShared[] = [
   { id: 'sasoftco-techlead', company: 'SASOFTCO' },
   { id: 'sasoftco-fullstack', company: 'SASOFTCO' },
@@ -47,121 +29,133 @@ export const EXPERIENCES_BY_LOCALE: Record<
 > = {
   es: {
     'sasoftco-techlead': {
-      role: 'Tech Lead — Desarrollo & Estrategia de IA',
-      location: 'Bogotá',
-      period: 'Ago 2024 – Presente',
+      role: 'Tech Lead — Desarrollo y Estrategia de IA',
+      location: 'Bogotá, Colombia',
+      period: 'Ago. 2024 – Presente',
       highlights: [
-        'Diseñé un agente RAG en Python (LangChain + Weaviate) para consulta de documentación organizacional en lenguaje natural.',
-        'Lidero la adopción de Spec-Driven Development integrando bases de conocimiento con agentes de IA.',
-        'Migración del monolito Jackcore a microservicios reutilizables en .NET Core + Spring Boot.',
-        'Flujos de IA en pull requests para revisión automática de código y estándares.',
+        'Lidero el proyecto Positiva ISARL, sistema central de la organización: dirijo la respuesta a los incidentes técnicos reportados y planeo la estrategia de migración para desacoplar el monolito en microservicios con Java (Spring) y .NET Core.',
+        'Lideré el equipo de Positiva CMDB: definí la arquitectura y el modelo de datos de un portal que orquesta mediante n8n los incidentes de infraestructura — aplicaciones, servidores y sistemas — reportados en SolarWinds hacia Aranda, donde se crean tickets automáticamente, eliminando el reporte manual por operador y agilizando los tiempos de resolución.',
+        'Lideré el diseño y construcción de un asistente para Positiva que responde consultas sobre la documentación organizacional en lenguaje natural (Python, LangChain, Weaviate), permitiendo a los usuarios funcionales encontrar respuestas en segundos en lugar de buscar manualmente entre cientos de páginas técnicas.',
+        'Implemento optimizaciones en el proceso de desarrollo aplicando herramientas de IA y metodologías como Spec-Driven Development, apoyadas en las bases de conocimiento del proyecto, para agilizar los tiempos de entrega y unificar los estándares del equipo.',
+        'Implementé revisiones automáticas de código en cada pull request, validando estándares de la compañía de forma consistente y liberando tiempo de revisión de los desarrolladores senior.',
+        'Dirigí la migración del monolito Jackcore a una arquitectura de microservicios reutilizables en .NET Core (autenticación, BPMN, notificaciones, conversión de documentos, almacenamiento), reduciendo el costo y el tiempo de los nuevos desarrollos al permitir su reutilización entre múltiples sistemas.',
+        'Brindo soporte técnico transversal a proyectos del portafolio (MinTIC, Alcaldía de Chiquinquirá, otras entidades), reduciendo tiempos de mantenimiento e incidentes en producción.',
       ],
     },
     'sasoftco-fullstack': {
       role: 'Full Stack Developer',
-      location: 'Villavicencio',
-      period: 'Mar 2023 – Ago 2024',
+      location: 'Villavicencio, Colombia',
+      period: 'Mar. 2023 – Ago. 2024',
       highlights: [
-        'Generador dinámico de formularios GovcodePro (Angular + Camunda).',
-        'Portal de Trámites Cormacarena y Portal de Trámites Empresariales.',
-        'Plataforma de Servicios Ciudadanos alineada a estándares de gobierno.',
+        'Diseñé y construí el generador dinámico de formularios de GovcodePro (Angular + Camunda Forms Modeler), reduciendo la creación de formularios complejos de días a minutos; hoy es componente clave de múltiples portales y trámites gubernamentales.',
+        'Entregué el Portal de Trámites de Cormacarena (Angular y .NET Core) alineado a lineamientos del Gobierno Colombiano, digitalizando trámites ambientales y reduciendo los tiempos de respuesta ciudadana.',
+        'Construí un Portal de Trámites Empresariales en Angular y .NET Core para MinTIC, alcaldías como Chiquinquirá y Zipaquirá, que automatiza gestión de trámites, autenticación y reportes, aumentando la eficiencia operativa de las entidades cliente.',
+        'Implementé la Plataforma de Servicios Ciudadanos centralizada alineada a estándares de accesibilidad del gobierno, mejorando la experiencia de usuario en trámites en línea.',
       ],
     },
     'freelance': {
       role: 'Full Stack Developer — Independiente',
-      location: 'Remoto · Colombia',
-      period: 'Ene 2022 – Presente',
+      companyLabel: 'Proyectos freelance',
+      location: 'Colombia (Remoto)',
+      period: 'Ene. 2022 – Presente',
       highlights: [
-        'Trip Planner IA — rediseño frontend en React (startup adquirida por layla.com).',
-        'Landing de Luminara y AlbertCTS construidas con Claude Code, Cursor y Copilot.',
-        'MVP móvil B2B en React Native para compra-venta de materiales.',
+        'Desarrollé la landing page de Luminara con Claude Code, Cursor y flujos asistidos por IA, acelerando la entrega sin sacrificar calidad ni mantenibilidad.',
+        'Implementé la landing page de AlbertCTS con Cursor, GitHub Copilot y prácticas de IA, reduciendo el tiempo de entrega en un 70%.',
+        'Rediseñé la arquitectura frontend en React de Trip Planner IA, startup de planificación de viajes posteriormente adquirida por layla.com, mejorando escalabilidad y rendimiento en producción.',
+        'Desarrollé un MVP móvil en React Native para una plataforma B2B de compra-venta de materiales, con trazabilidad de transacciones por cliente.',
       ],
     },
     'hewtec': {
       role: 'Backend Developer',
-      location: 'Bogotá',
-      period: 'May 2021 – Nov 2021',
+      location: 'Bogotá, Colombia',
+      period: 'May. 2021 – Nov. 2021',
       highlights: [
-        'Mejoras al Wizard de generación de plantillas full-stack (React, Node, Postgres).',
+        'Optimicé la herramienta Wizard de generación automatizada de plantillas full-stack (React, Node.js, Express, PostgreSQL) bajo arquitectura REST, acelerando el arranque de nuevos proyectos internos.',
+        'Capacité a múltiples equipos internos en instalación, componentes y reutilización efectiva de la herramienta.',
       ],
     },
     'sc-business': {
       role: 'Frontend Developer',
-      location: 'Villavicencio',
-      period: 'Jun 2018 – Sep 2019',
+      location: 'Villavicencio, Colombia',
+      period: 'Jun. 2018 – Sep. 2019',
       highlights: [
-        'CMS del C.C. Unicentro Villavicencio (JS, Firebase, Firestore).',
+        'Implementé el CMS del Centro Comercial Unicentro Villavicencio (JavaScript, Firebase, Firestore Realtime), reduciendo el tiempo de actualización de información de tiendas.',
+        'Desarrollé aplicaciones web responsive con React.js, Firebase y Vanilla JS para múltiples negocios locales, optimizando su presencia digital.',
       ],
     },
   },
   en: {
     'sasoftco-techlead': {
       role: 'Tech Lead — Development & AI Strategy',
-      location: 'Bogotá',
+      location: 'Bogotá, Colombia',
       period: 'Aug 2024 – Present',
       highlights: [
-        'Designed a Python RAG agent (LangChain + Weaviate) for natural-language queries against organizational documentation.',
-        'Leading the adoption of Spec-Driven Development by integrating knowledge bases with AI agents.',
-        'Migration of the Jackcore monolith to reusable microservices in .NET Core + Spring Boot.',
-        'AI-powered pull-request workflows for automated code review and standards enforcement.',
+        'Lead the Positiva ISARL project, the organization\'s core system: I drive the response to reported technical incidents and plan the migration strategy to decouple the monolith into microservices using Java (Spring) and .NET Core.',
+        'Led the Positiva CMDB team: defined the architecture and data model of a portal that orchestrates via n8n infrastructure incidents — applications, servers and systems — reported in SolarWinds into Aranda, where tickets are created automatically, eliminating manual operator reporting and speeding up resolution times.',
+        'Led the design and build of an assistant for Positiva that answers questions about organizational documentation in natural language (Python, LangChain, Weaviate), letting business users find answers in seconds instead of searching manually across hundreds of technical pages.',
+        'Implement optimizations in the development process by applying AI tools and methodologies such as Spec-Driven Development, backed by project knowledge bases, to speed up delivery times and unify the team\'s standards.',
+        'Implemented automated code review on every pull request, consistently validating company standards and freeing up review time for senior developers.',
+        'Directed the migration of the Jackcore monolith to a reusable microservices architecture in .NET Core (authentication, BPMN, notifications, document conversion, storage), reducing the cost and time of new development by allowing reuse across multiple systems.',
+        'Provide cross-functional technical support to portfolio projects (MinTIC, Alcaldía de Chiquinquirá, other agencies), reducing maintenance time and production incidents.',
       ],
     },
     'sasoftco-fullstack': {
       role: 'Full Stack Developer',
-      location: 'Villavicencio',
+      location: 'Villavicencio, Colombia',
       period: 'Mar 2023 – Aug 2024',
       highlights: [
-        'GovcodePro dynamic form builder (Angular + Camunda).',
-        'Cormacarena Procedures Portal and Business Procedures Portal.',
-        'Citizen Services Platform aligned with government standards.',
+        'Designed and built GovcodePro\'s dynamic form generator (Angular + Camunda Forms Modeler), cutting complex form creation from days to minutes; now a core component across multiple government portals and procedures.',
+        'Delivered Cormacarena\'s procedures portal (Angular and .NET Core) aligned with Colombian government guidelines, digitizing environmental procedures and reducing citizen response times.',
+        'Built an enterprise procedures portal in Angular and .NET Core for MinTIC and municipal governments such as Chiquinquirá and Zipaquirá, automating procedure management, authentication, and reporting, increasing client agencies\' operational efficiency.',
+        'Implemented a centralized Citizen Services Platform aligned with government accessibility standards, improving the user experience of online procedures.',
       ],
     },
     'freelance': {
-      role: 'Full Stack Developer — Independent',
-      location: 'Remote · Colombia',
+      role: 'Full Stack Developer — Freelance',
+      companyLabel: 'Freelance projects',
+      location: 'Colombia (Remote)',
       period: 'Jan 2022 – Present',
       highlights: [
-        'Trip Planner AI — frontend redesign in React (startup acquired by layla.com).',
-        'Luminara and AlbertCTS landing pages built with Claude Code, Cursor and Copilot.',
-        'B2B mobile MVP in React Native for materials buy/sell.',
+        'Built Luminara\'s landing page with Claude Code, Cursor, and AI-assisted workflows, accelerating delivery without sacrificing quality or maintainability.',
+        'Implemented AlbertCTS\'s landing page with Cursor, GitHub Copilot, and AI practices, cutting delivery time by 70%.',
+        'Redesigned the React frontend architecture of Trip Planner IA, an AI travel-planning startup later acquired by layla.com, improving scalability and production performance.',
+        'Developed a React Native mobile MVP for a B2B materials marketplace, with per-client transaction traceability.',
       ],
     },
     'hewtec': {
       role: 'Backend Developer',
-      location: 'Bogotá',
+      location: 'Bogotá, Colombia',
       period: 'May 2021 – Nov 2021',
       highlights: [
-        'Improvements to the full-stack template generation Wizard (React, Node, Postgres).',
+        'Optimized the Wizard tool for automated full-stack template generation (React, Node.js, Express, PostgreSQL) under a REST architecture, accelerating the bootstrap of new internal projects.',
+        'Trained multiple internal teams on installation, components, and effective reuse of the tool.',
       ],
     },
     'sc-business': {
       role: 'Frontend Developer',
-      location: 'Villavicencio',
+      location: 'Villavicencio, Colombia',
       period: 'Jun 2018 – Sep 2019',
       highlights: [
-        'CMS for Unicentro Villavicencio shopping mall (JS, Firebase, Firestore).',
+        'Implemented the CMS for Unicentro Villavicencio shopping mall (JavaScript, Firebase, Firestore Realtime), reducing the time to update store information.',
+        'Built responsive web applications with React.js, Firebase, and Vanilla JS for multiple local businesses, optimizing their digital presence.',
       ],
     },
   },
 };
 
-/**
- * Resolve the experience list for a given locale, in stable order. Falls back
- * to the default locale's translations for any id missing in the requested
- * locale (paranoia — the typed Record should already prevent this).
- */
 export function getExperiences(locale: string = defaultLocale): Experience[] {
   const code = resolveLocale(locale);
   const map = EXPERIENCES_BY_LOCALE[code];
   const fallback = EXPERIENCES_BY_LOCALE[defaultLocale];
-  return EXPERIENCES_SHARED.map((shared) => ({
-    ...shared,
-    ...(map[shared.id] ?? fallback[shared.id]),
-  }));
+  return EXPERIENCES_SHARED.map((shared) => {
+    const translated = map[shared.id] ?? fallback[shared.id];
+    const { companyLabel, ...rest } = translated;
+    return {
+      ...shared,
+      ...rest,
+      company: companyLabel ?? shared.company,
+    };
+  });
 }
 
-/**
- * Default-locale experience list, kept for backwards-compatibility with
- * existing imports. New code should prefer `getExperiences(locale)`.
- */
 export const EXPERIENCE: Experience[] = getExperiences(defaultLocale);

@@ -1270,13 +1270,13 @@ a.status-pill--whatsapp:hover {
 /* Timeline */
 .timeline {
   position: relative;
-  padding-left: 28px;
+  padding-left: 44px;
   margin-top: 40px;
 }
 .timeline::before {
   content: "";
   position: absolute;
-  left: 6px; top: 8px; bottom: 8px;
+  left: 15px; top: 8px; bottom: 8px;
   width: 1px; background: var(--line-strong);
 }
 .tl-item {
@@ -1285,16 +1285,24 @@ a.status-pill--whatsapp:hover {
   border-bottom: 1px solid var(--line);
 }
 .tl-item:last-child { border-bottom: none; }
-.tl-item::before {
-  content: "";
+.tl-marker {
   position: absolute;
-  left: -28px; top: 28px;
-  width: 13px; height: 13px;
+  left: -44px;
+  top: 22px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  background: var(--bg);
-  border: 2px solid var(--ink);
+  background: var(--accent);
+  color: var(--accent-ink);
+  z-index: 1;
+  flex-shrink: 0;
 }
-.tl-item.now::before { background: var(--accent); border-color: var(--ink); }
+.tl-item.now .tl-marker {
+  box-shadow: 0 0 0 2px var(--ink);
+}
 .tl-head {
   display: flex; justify-content: space-between; gap: 14px;
   margin-bottom: 8px;

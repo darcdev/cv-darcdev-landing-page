@@ -8,6 +8,8 @@ import { t } from "../i18n/translate";
 interface Props {
   /** Active locale for this route. Defaults to the project default. */
   locale?: string;
+  /** Nav item to highlight on standalone routes (e.g. blog archive/posts). */
+  activeNav?: string;
   title?: string;
   description?: string;
   /** Translation key for <title>. Overrides `title` prop if provided. */
@@ -16,13 +18,22 @@ interface Props {
   descriptionKey?: string;
 }
 
+function resolveActiveNav(pathname: string, explicit?: string): string | undefined {
+  if (explicit) return explicit;
+  if (/\/blog(\/|$)/.test(pathname)) return 'blog';
+  return undefined;
+}
+
 const {
   locale = defaultLocale,
+  activeNav: activeNavProp,
   title,
   description,
   titleKey = "meta.title",
   descriptionKey = "meta.description",
 } = Astro.props;
+
+const activeNav = resolveActiveNav(Astro.url.pathname, activeNavProp);
 
 const renderedTitle = title ?? t(titleKey, undefined, locale);
 const renderedDescription = description ?? t(descriptionKey, undefined, locale);
@@ -58,7 +69,7 @@ const renderedDescription = description ?? t(descriptionKey, undefined, locale);
   </head>
   <body>
     <div class="app">
-      <Nav locale={locale} client:load />
+      <Nav locale={locale} activeNav={activeNav} client:load />
       <slot />
       <Footer locale={locale} />
       <WhatsAppFloat locale={locale} />

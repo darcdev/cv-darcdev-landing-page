@@ -1,4 +1,6 @@
 ---
+import Icon from '../atoms/Icon.astro';
+
 interface Props {
   role: string;
   company: string;
@@ -14,6 +16,9 @@ const { role, company, location, period, highlights, current = false } = Astro.p
 ---
 
 <div class={`tl-item ${current ? 'now' : ''}`}>
+  <div class="tl-marker" aria-hidden="true">
+    <Icon name="briefcase" size={14} />
+  </div>
   <div class="tl-head">
     <div class="tl-role">{role}</div>
     <div class="tl-period">{period}</div>

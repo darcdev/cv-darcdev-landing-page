@@ -52,7 +52,7 @@ const SKILLS = getSkills(locale);
     <Reveal client:visible delay={200}>
       <div class="stats-grid">
         <StatCell number="7+"  labelKey="about.stats.years"    locale={locale} />
-        <StatCell number="20+" labelKey="about.stats.projects" locale={locale} />
+        <StatCell number={`${PROFILE.productionProjects}+`} labelKey="about.stats.projects" locale={locale} />
         <StatCell number="5"   labelKey="about.stats.mintic"   locale={locale} />
         <StatCell number="∞"   labelKey="about.stats.prompts"  locale={locale} mono />
       </div>
