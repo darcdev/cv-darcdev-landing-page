@@ -53,8 +53,8 @@ const SKILLS = getSkills(locale);
       <div class="stats-grid">
         <StatCell number="7+"  labelKey="about.stats.years"    locale={locale} />
         <StatCell number={`${PROFILE.productionProjects}+`} labelKey="about.stats.projects" locale={locale} />
-        <StatCell number="5"   labelKey="about.stats.mintic"   locale={locale} />
-        <StatCell number="∞"   labelKey="about.stats.prompts"  locale={locale} mono />
+        <StatCell number={String(PROFILE.proceduresImplemented)} labelKey="about.stats.procedures" locale={locale} />
+        <StatCell number={String(PROFILE.aiSolutionsInProduction)} labelKey="about.stats.ai" locale={locale} />
       </div>
     </Reveal>
 

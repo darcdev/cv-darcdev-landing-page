@@ -9,6 +9,8 @@ export interface ProfileShared {
   github: string;
   years: number;
   productionProjects: number;
+  proceduresImplemented: number;
+  aiSolutionsInProduction: number;
   available: boolean;
 }
 
@@ -31,6 +33,8 @@ export const PROFILE_SHARED: ProfileShared = {
   github: 'github.com/darcdev',
   years: 7,
   productionProjects: 20,
+  proceduresImplemented: 27,
+  aiSolutionsInProduction: 3,
   available: true,
 };
 
