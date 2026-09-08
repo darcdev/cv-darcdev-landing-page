@@ -36,6 +36,28 @@ function Filters({ options, value, onChange }: { options: string[]; value: strin
   );
 }
 
+/**
+ * Shown when there are NO posts at all — a forward-looking teaser, not an error.
+ * This is a different state from `blog.empty`, which means "posts exist, but
+ * none in the selected category".
+ */
+function ComingSoon({ locale }: { locale: string }) {
+  return (
+    <div class="blog-soon">
+      <span class="blog-soon-badge">
+        <span class="blog-soon-dot" aria-hidden="true"></span>
+        {t('blog.soon.badge', undefined, locale)}
+      </span>
+      <h3 class="blog-soon-title">{t('blog.soon.title', undefined, locale)}</h3>
+      <p class="blog-soon-body">{t('blog.soon.body', undefined, locale)}</p>
+      <a href={`/${locale}/#projects`} class="btn blog-soon-cta">
+        <span>{t('blog.soon.cta', undefined, locale)}</span>
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  );
+}
+
 function Reveal({ children, delay = 0 }: { children: ComponentChildren; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [seen, setSeen] = useState(false);
@@ -113,6 +135,9 @@ function MagCard({ post, variant, locale }: { post: PostMeta; variant: 'big' | '
 const BlogSection: FunctionComponent<Props> = ({ posts, allLabel, locale, previewLimit }) => {
   const [cat, setCat] = useState(allLabel);
 
+  /** No posts published yet → teaser mode: no count, no filters, no grid. */
+  const hasPosts = posts.length > 0;
+
   const categories = useMemo(() => {
     const cats = Array.from(new Set(posts.map((p) => p.category)));
     return [allLabel, ...cats];
@@ -145,7 +170,8 @@ const BlogSection: FunctionComponent<Props> = ({ posts, allLabel, locale, previe
             <div>
               <div class="eyebrow">
                 <span class="idx">05</span>
-                <span> · {t('blog.eyebrow', undefined, locale)} · {posts.length} {t('blog.posts_label', undefined, locale)}</span>
+                <span> · {t('blog.eyebrow', undefined, locale)}</span>
+                {hasPosts && <span> · {posts.length} {t('blog.posts_label', undefined, locale)}</span>}
               </div>
               <h2 class="sect-title" style={{ marginTop: 18 }}
                   dangerouslySetInnerHTML={{ __html: t('blog.title', undefined, locale) }} />
@@ -156,11 +182,17 @@ const BlogSection: FunctionComponent<Props> = ({ posts, allLabel, locale, previe
           </div>
         </Reveal>
 
-        <Reveal>
-          <Filters options={categories} value={cat} onChange={setCat} />
-        </Reveal>
+        {hasPosts && (
+          <Reveal>
+            <Filters options={categories} value={cat} onChange={setCat} />
+          </Reveal>
+        )}
 
-        {ordered.length === 0 ? (
+        {!hasPosts ? (
+          <Reveal>
+            <ComingSoon locale={locale} />
+          </Reveal>
+        ) : ordered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 80, color: 'var(--muted)' }}>
             {t('blog.empty', undefined, locale)}
           </div>

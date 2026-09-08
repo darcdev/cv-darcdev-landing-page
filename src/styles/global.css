@@ -361,6 +361,13 @@ img { display: block; max-width: 100%; }
   transition: background 0.2s, border-color 0.2s;
   min-height: 44px;
 }
+.mobile-lang-btn .flag {
+  width: 24px;
+  height: 17px;
+}
+.mobile-lang-btn.active .flag {
+  box-shadow: 0 0 0 1px var(--paper);
+}
 .mobile-lang-btn:hover {
   background: var(--bg-2);
 }
@@ -1033,6 +1040,18 @@ a.status-pill--whatsapp:hover {
   text-align: right;
 }
 .proj-meta-col .year { font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+.proj-cinta {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 5px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  color: var(--paper);
+  background: var(--accent);
+  border-radius: 3px;
+  vertical-align: 1px;
+}
 .proj-arrow {
   font-size: 22px;
   color: var(--muted);
@@ -1043,11 +1062,39 @@ a.status-pill--whatsapp:hover {
 }
 
 /* ===== Featured proj cards (top of grid - 3 only) ===== */
+.featured-carousel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 60px;
+}
+.carousel-btn {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-lg);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.carousel-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 0 var(--ink);
+}
+.carousel-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 .featured-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  margin-bottom: 60px;
+  flex: 1;
+  min-width: 0;
 }
 .feat-card {
   background: var(--paper);
@@ -1074,6 +1121,18 @@ a.status-pill--whatsapp:hover {
   background: var(--paper);
   line-height: 0;
 }
+.feat-card .feat-cover .cover,
+.feat-card .feat-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.feat-card .feat-cover img {
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
 .feat-card .feat-num {
   position: absolute;
   top: 14px; right: 16px;
@@ -1085,6 +1144,25 @@ a.status-pill--whatsapp:hover {
   border-radius: 4px;
   border: 1px solid var(--ink);
   z-index: 2;
+}
+.feat-card .feat-cinta {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--paper);
+  background: var(--accent);
+  padding: 6px 10px;
+  border-radius: 4px;
+  z-index: 2;
+  box-shadow: 2px 2px 0 0 var(--ink);
+  animation: cinta-pulse 2.2s ease-in-out infinite;
+}
+@keyframes cinta-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
 }
 .feat-card h3 {
   font-size: 22px;
@@ -1737,6 +1815,52 @@ a.status-pill--whatsapp:hover {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--accent);
+}
+
+/* ===== Ask demo: budget meter, notes and pending state =====
+   The panel is dark in both themes, so these use fixed light-on-dark values
+   like the rest of the `.ask` block rather than theme tokens. */
+.ask-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--accent);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #d8d8d4;
+}
+.ask-answer {
+  white-space: pre-wrap;
+  transition: opacity 0.2s ease;
+}
+.ask-answer.is-thinking {
+  opacity: 0.6;
+  animation: askThinking 1.4s ease-in-out infinite;
+}
+@keyframes askThinking {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.8; }
+}
+.ask-input:disabled,
+.ask-send:disabled,
+.ask-sug:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ask-send:disabled:hover,
+.ask-sug:disabled:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--paper);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.ask-send:disabled:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ask-answer.is-thinking { animation: none; }
 }
 
 [data-theme="dark"] .ask {
@@ -3122,6 +3246,20 @@ a.status-pill--whatsapp:hover {
 .gallery-modal .gallery-counter { font-size: 11px; }
 
 
+/* ===== Flags =====
+   Base sizing for every flag, regardless of context. The source images have
+   different aspect ratios (es 40x27, gb 40x20), so object-fit crops instead
+   of stretching them. */
+.flag {
+  display: block;
+  flex-shrink: 0;
+  width: 20px;
+  height: 14px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
 /* ===== Language selector in nav ===== */
 .nav-lang-btn {
   display: inline-flex;
@@ -3145,15 +3283,6 @@ a.status-pill--whatsapp:hover {
   background: var(--ink);
   color: var(--paper);
   border-color: var(--ink);
-}
-.nav-lang-btn .flag {
-  width: 20px;
-  height: 14px;
-  border-radius: 2px;
-  overflow: hidden;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.18);
-  display: block;
-  flex-shrink: 0;
 }
 .nav-lang-btn:hover .flag {
   box-shadow: 0 0 0 1px var(--paper);
@@ -3242,9 +3371,6 @@ a.status-pill--whatsapp:hover {
 .nav-lang-opt .flag {
   width: 22px;
   height: 16px;
-  border-radius: 2px;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.18);
-  flex-shrink: 0;
 }
 .nav-lang-opt > span { flex: 1; }
 .nav-lang-check { opacity: 0.9; flex-shrink: 0; }
@@ -3426,9 +3552,8 @@ html {
  * Reserves aspect ratio to prevent CLS; touch targets ≥ 44×44 on mobile.
  * ============================================================ */
 .feat-card .feat-cover img {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
 }
 .modal-cover img {
@@ -3451,7 +3576,8 @@ html {
 .project-gallery-primary {
   position: relative;
   width: 100%;
-  background: var(--paper);
+  height: min(400px, 55vh);
+  background: var(--bg-2);
   border: 1px solid var(--ink);
   border-radius: var(--radius);
   overflow: hidden;
@@ -3460,8 +3586,9 @@ html {
 }
 .project-gallery-primary img {
   width: 100%;
-  height: auto;
-  max-height: min(400px, 50vh);
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
 .project-gallery-arrow {
@@ -3556,6 +3683,88 @@ html {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ===== Blog "coming soon" state =====
+   Shown only when there are ZERO posts. Distinct from `blog.empty`
+   (which means "posts exist, none in this category"). */
+.blog-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 620px;
+  margin: 8px auto 0;
+  padding: 56px 32px 52px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+.blog-soon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.blog-soon-dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.blog-soon-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.45;
+  animation: pulse 1.8s ease-out infinite;
+}
+.blog-soon-title {
+  margin: 20px 0 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(26px, 4vw, 36px);
+  line-height: 1.15;
+  color: var(--ink);
+}
+.blog-soon-body {
+  margin: 16px 0 0;
+  max-width: 480px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.blog-soon-cta {
+  margin-top: 28px;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+.blog-soon-cta:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+@media (max-width: 640px) {
+  .blog-soon {
+    padding: 40px 22px 36px;
+    box-shadow: 3px 3px 0 0 var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-soon-dot::after { animation: none; }
 }
 .blog-archive-page .section {
   padding-top: 0;

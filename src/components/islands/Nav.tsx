@@ -37,38 +37,42 @@ const Icon = {
   ),
 };
 
+import esFlag from '../../assets/flags/es.png';
+import gbFlag from '../../assets/flags/gb.png';
+
 function FlagES() {
   return (
-    <svg class="flag" viewBox="0 0 30 20" width="20" height="14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect width="30" height="20" fill="#AA151B"/>
-      <rect y="5" width="30" height="10" fill="#F1BF00"/>
-      <g transform="translate(8.5,10)">
-        <rect x="-1.4" y="-1.6" width="2.8" height="3.2" fill="#AA151B" stroke="#AD1519" strokeWidth="0.3"/>
-        <rect x="-1.6" y="-0.4" width="3.2" height="0.5" fill="#F1BF00"/>
-      </g>
-    </svg>
+    <img
+      class="flag"
+      src={esFlag.src}
+      width={esFlag.width}
+      height={esFlag.height}
+      alt=""
+      aria-hidden="true"
+      loading="eager"
+      decoding="async"
+    />
   );
 }
 
 function FlagEN() {
   return (
-    <svg class="flag" viewBox="0 0 60 30" width="20" height="14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <clipPath id="ukclip"><rect width="60" height="30"/></clipPath>
-      <g clipPath="url(#ukclip)">
-        <rect width="60" height="30" fill="#012169"/>
-        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
-        <path d="M0,0 L60,30" stroke="#C8102E" strokeWidth="2"/>
-        <path d="M60,0 L0,30" stroke="#C8102E" strokeWidth="2"/>
-        <path d="M30,0 V30 M0,15 H60" stroke="#fff" strokeWidth="10"/>
-        <path d="M30,0 V30 M0,15 H60" stroke="#C8102E" strokeWidth="6"/>
-      </g>
-    </svg>
+    <img
+      class="flag"
+      src={gbFlag.src}
+      width={gbFlag.width}
+      height={gbFlag.height}
+      alt=""
+      aria-hidden="true"
+      loading="eager"
+      decoding="async"
+    />
   );
 }
 
 function FlagGeneric({ code }: { code: string }) {
   return (
-    <svg class="flag" viewBox="0 0 30 20" width="20" height="14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <rect width="30" height="20" fill="var(--ink)"/>
       <text x="15" y="14" textAnchor="middle" fill="var(--bg)" fontSize="10" fontFamily="monospace" fontWeight="700">
         {code.toUpperCase()}

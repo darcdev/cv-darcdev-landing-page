@@ -43,14 +43,14 @@ export const PROFILE_BY_LOCALE: Record<LocaleCode, ProfileTranslated> = {
     role: 'Tech Lead · Arquitecto de Software',
     focus: 'IA Aplicada al Desarrollo',
     location: 'Bogotá, Colombia',
-    bio: 'Tech Lead con más de 7 años construyendo y liderando soluciones full-stack para gobierno y empresa privada. Combino arquitectura, código hands-on y liderazgo transversal — hoy aplicando IA al ciclo de desarrollo: agentes, RAG, MCP y Spec-Driven Development.',
+    bio: 'Tech Lead con más de 7 años construyendo y liderando soluciones full-stack para gobierno y empresa privada. Combino arquitectura, código hands-on y liderazgo transversal — y hoy uso IA en el día a día: agentes, RAG, MCP y Spec-Driven Development.',
     shortBio: 'Construyo agentes, sistemas RAG y arquitecturas que conectan equipos con IA.',
   },
   en: {
     role: 'Tech Lead · Software Architect',
     focus: 'Applied AI for Software Development',
     location: 'Bogotá, Colombia',
-    bio: 'Tech Lead with 7+ years building and leading full-stack solutions for government and private companies. I combine architecture, hands-on coding and cross-team leadership — today applying AI to the development cycle: agents, RAG, MCP and Spec-Driven Development.',
+    bio: 'Tech Lead with 7+ years building and leading full-stack solutions for government and private companies. I combine architecture, hands-on coding and cross-team leadership — and today I use AI in my day-to-day: agents, RAG, MCP and Spec-Driven Development.',
     shortBio: 'I build agents, RAG systems and architectures that connect teams with AI.',
   },
 };

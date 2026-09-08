@@ -47,7 +47,7 @@ export const EXPERIENCES_BY_LOCALE: Record<
       location: 'Villavicencio, Colombia',
       period: 'Mar. 2023 – Ago. 2024',
       highlights: [
-        'Diseñé y construí el generador dinámico de formularios de GovcodePro (Angular + Camunda Forms Modeler), reduciendo la creación de formularios complejos de días a minutos; hoy es componente clave de múltiples portales y trámites gubernamentales.',
+        'Diseñé y construí el generador dinámico de formularios de Generator Forms (Angular + Camunda Forms Modeler), reduciendo la creación de formularios complejos de días a minutos; hoy es componente clave de múltiples portales y trámites gubernamentales.',
         'Entregué el Portal de Trámites de Cormacarena (Angular y .NET Core) alineado a lineamientos del Gobierno Colombiano, digitalizando trámites ambientales y reduciendo los tiempos de respuesta ciudadana.',
         'Construí un Portal de Trámites Empresariales en Angular y .NET Core para MinTIC, alcaldías como Chiquinquirá y Zipaquirá, que automatiza gestión de trámites, autenticación y reportes, aumentando la eficiencia operativa de las entidades cliente.',
         'Implementé la Plataforma de Servicios Ciudadanos centralizada alineada a estándares de accesibilidad del gobierno, mejorando la experiencia de usuario en trámites en línea.',
@@ -59,9 +59,8 @@ export const EXPERIENCES_BY_LOCALE: Record<
       location: 'Colombia (Remoto)',
       period: 'Ene. 2022 – Presente',
       highlights: [
-        'Desarrollé la landing page de Luminara con Claude Code, Cursor y flujos asistidos por IA, acelerando la entrega sin sacrificar calidad ni mantenibilidad.',
         'Implementé la landing page de AlbertCTS con Cursor, GitHub Copilot y prácticas de IA, reduciendo el tiempo de entrega en un 70%.',
-        'Rediseñé la arquitectura frontend en React de Trip Planner IA, startup de planificación de viajes posteriormente adquirida por layla.com, mejorando escalabilidad y rendimiento en producción.',
+        'Rediseñé la arquitectura frontend en React de Trip Planner IA, startup de planificación de viajes posteriormente adquirida por tripplanner.ai, mejorando escalabilidad y rendimiento en producción.',
         'Desarrollé un MVP móvil en React Native para una plataforma B2B de compra-venta de materiales, con trazabilidad de transacciones por cliente.',
       ],
     },
@@ -104,7 +103,7 @@ export const EXPERIENCES_BY_LOCALE: Record<
       location: 'Villavicencio, Colombia',
       period: 'Mar 2023 – Aug 2024',
       highlights: [
-        'Designed and built GovcodePro\'s dynamic form generator (Angular + Camunda Forms Modeler), cutting complex form creation from days to minutes; now a core component across multiple government portals and procedures.',
+        'Designed and built Generator Forms\'s dynamic form generator (Angular + Camunda Forms Modeler), cutting complex form creation from days to minutes; now a core component across multiple government portals and procedures.',
         'Delivered Cormacarena\'s procedures portal (Angular and .NET Core) aligned with Colombian government guidelines, digitizing environmental procedures and reducing citizen response times.',
         'Built an enterprise procedures portal in Angular and .NET Core for MinTIC and municipal governments such as Chiquinquirá and Zipaquirá, automating procedure management, authentication, and reporting, increasing client agencies\' operational efficiency.',
         'Implemented a centralized Citizen Services Platform aligned with government accessibility standards, improving the user experience of online procedures.',
@@ -116,9 +115,8 @@ export const EXPERIENCES_BY_LOCALE: Record<
       location: 'Colombia (Remote)',
       period: 'Jan 2022 – Present',
       highlights: [
-        'Built Luminara\'s landing page with Claude Code, Cursor, and AI-assisted workflows, accelerating delivery without sacrificing quality or maintainability.',
         'Implemented AlbertCTS\'s landing page with Cursor, GitHub Copilot, and AI practices, cutting delivery time by 70%.',
-        'Redesigned the React frontend architecture of Trip Planner IA, an AI travel-planning startup later acquired by layla.com, improving scalability and production performance.',
+        'Redesigned the React frontend architecture of Trip Planner IA, an AI travel-planning startup later acquired by tripplanner.ai, improving scalability and production performance.',
         'Developed a React Native mobile MVP for a B2B materials marketplace, with per-client transaction traceability.',
       ],
     },

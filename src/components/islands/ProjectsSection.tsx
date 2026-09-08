@@ -157,11 +157,21 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale, projects, gallerySt
   const [filter, setFilter] = useState<string>(allLabel);
   const [search, setSearch] = useState('');
   const [modalId, setModalId] = useState<string | null>(null);
+  const [featuredIndex, setFeaturedIndex] = useState(0);
 
   const projectTypes = useMemo(() => getProjectTypes(lang), [lang]);
 
+  const featured = projects.filter((p) => p.featured);
+  const carouselStep = 3;
+  const maxFeaturedIndex = Math.max(0, featured.length - carouselStep);
+
   const filtered = useMemo(() => {
     let r = projects;
+    // La lista es la fuente de verdad: SIEMPRE contiene todos los proyectos que
+    // pasan el filtro, featured incluidos. El carrusel de arriba es solo un
+    // destacado (una ventana de `carouselStep` sobre los featured), no un
+    // reemplazo — excluirlos de la lista escondía los featured que quedaban
+    // fuera de la ventana y hacía que el contador no coincidiera con lo visible.
     if (filter !== allLabel) r = r.filter((p) => p.type === filter);
     if (search.trim()) {
       const s = search.toLowerCase();
@@ -174,7 +184,7 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale, projects, gallerySt
     return r;
   }, [projects, filter, search, allLabel]);
 
-  const featured = projects.filter((p) => p.featured).slice(0, 3);
+  const visibleFeatured = featured.slice(featuredIndex, featuredIndex + carouselStep);
   const modalProject = modalId ? projects.find((p) => p.id === modalId) ?? null : null;
 
   return (
@@ -189,6 +199,9 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale, projects, gallerySt
               </div>
               <h2 class="sect-title" style={{ marginTop: 18 }}
                   dangerouslySetInnerHTML={{ __html: t('projects.title', undefined, lang) }} />
+              <p style={{ color: 'var(--muted)', maxWidth: 540, marginTop: 22, fontSize: 17, lineHeight: 1.55 }}>
+                {t('projects.lede', undefined, lang)}
+              </p>
             </div>
             <div class="search-wrap" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <div class="search-wrap" style={{ position: 'relative' }}>
@@ -209,49 +222,70 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale, projects, gallerySt
         </div>
 
         <div class="reveal in">
-          <div class="featured-grid">
-            {featured.map((p) => {
-              const cardImg = p.resolvedImages.card[0];
-              return (
-                <div key={p.id} class="feat-card" onClick={() => setModalId(p.id)}>
-                  <div class="feat-cover">
-                    {cardImg ? (
-                      <img
-                        src={cardImg.src}
-                        srcset={cardImg.srcset || undefined}
-                        sizes={cardImg.sizes || undefined}
-                        width={cardImg.width}
-                        height={cardImg.height}
-                        alt={cardImg.alt}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <Cover kind={p.cover} />
-                    )}
-                    <span class="feat-num">★ {t('projects.featured', undefined, lang)}</span>
-                    {p.liveUrl && (
-                      <a
-                        class="feat-live"
-                        href={p.liveUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
-                        <span>{t('projects.view_site', undefined, lang)}</span>
-                      </a>
-                    )}
+          <div class="featured-carousel">
+            <button
+              class="carousel-btn"
+              aria-label="Anterior"
+              disabled={featuredIndex === 0}
+              onClick={() => setFeaturedIndex((i) => Math.max(0, i - carouselStep))}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="featured-grid">
+              {visibleFeatured.map((p) => {
+                const cardImg = p.resolvedImages.card[0];
+                return (
+                  <div key={p.id} class="feat-card" onClick={() => setModalId(p.id)}>
+                    <div class="feat-cover">
+                      {cardImg ? (
+                        <img
+                          src={cardImg.src}
+                          srcset={cardImg.srcset || undefined}
+                          sizes={cardImg.sizes || undefined}
+                          width={cardImg.width}
+                          height={cardImg.height}
+                          alt={cardImg.alt}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <Cover kind={p.cover} />
+                      )}
+                      <span class="feat-num">★ {t('projects.featured', undefined, lang)}</span>
+                      {p.status === 'rollout' && (
+                        <span class="feat-cinta">{t('projects.in_progress', undefined, lang)}</span>
+                      )}
+                      {p.liveUrl && (
+                        <a
+                          class="feat-live"
+                          href={p.liveUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+                          <span>{t('projects.view_site', undefined, lang)}</span>
+                        </a>
+                      )}
+                    </div>
+                    <h3>{p.title}</h3>
+                    <p class="tagline">{p.tagline}</p>
+                    <div class="meta">
+                      <span>{p.type}</span>
+                      <span>{p.year}</span>
+                    </div>
                   </div>
-                  <h3>{p.title}</h3>
-                  <p class="tagline">{p.tagline}</p>
-                  <div class="meta">
-                    <span>{p.type}</span>
-                    <span>{p.year}</span>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+            <button
+              class="carousel-btn"
+              aria-label="Siguiente"
+              disabled={featuredIndex >= maxFeaturedIndex}
+              onClick={() => setFeaturedIndex((i) => Math.min(maxFeaturedIndex, i + carouselStep))}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
           </div>
         </div>
 
@@ -291,7 +325,11 @@ const ProjectsSection: FunctionComponent<Props> = ({ locale, projects, gallerySt
                 <div class="proj-meta-col">
                   <div class="year">{p.year}</div>
                   <div>{p.role}</div>
-                  <div>{getStatusLabel(p.status, lang)}</div>
+                  <div>{getStatusLabel(p.status, lang)}
+                    {p.status === 'rollout' && (
+                      <span class="proj-cinta">{t('projects.in_progress', undefined, lang)}</span>
+                    )}
+                  </div>
                 </div>
                 <div class="proj-arrow">→</div>
               </div>
