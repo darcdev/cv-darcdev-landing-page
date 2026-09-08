@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { FunctionComponent } from 'preact';
 import { t } from '../../i18n/translate';
+import { askGemini, type AskFailure } from '../../lib/ask/gemini';
+import { getKnowledgeContext } from '../../lib/ask/knowledge';
+import { consume, refund, MAX_QUESTION_CHARS } from '../../lib/ask/budget';
 
 interface Props {
   /** Active locale code. */
@@ -9,8 +12,26 @@ interface Props {
 
 const PRESET_KEYS = ['p1', 'p2', 'p3', 'p4'] as const;
 
-/** Mirrors MAX_QUESTION_CHARS in src/lib/ask/budget.ts (the server is the authority). */
-const MAX_QUESTION_CHARS = 280;
+/**
+ * Upstream failures that are OUR problem, not the visitor's, so the attempt is
+ * given back. `blocked` is excluded on purpose: a safety block is a response to
+ * what was actually asked, and refunding it would make the block free to retry.
+ */
+const REFUNDABLE: ReadonlySet<AskFailure> = new Set<AskFailure>([
+  'no-key',
+  'timeout',
+  'upstream',
+  'rate-limited',
+  'truncated',
+  'empty',
+]);
+
+/** Transient failures worth inviting a retry for, rather than a flat error. */
+const TRANSIENT: ReadonlySet<AskFailure> = new Set<AskFailure>([
+  'no-key',
+  'timeout',
+  'rate-limited',
+]);
 
 type Status = 'idle' | 'loading' | 'answered';
 /** Where the currently displayed answer came from. */
@@ -33,16 +54,19 @@ function presetAnswerFor(text: string, locale: string): string | null {
 /**
  * One question in, one answer out.
  *
- * Deliberately STATELESS. There is no conversation history, no browser storage
- * and no client-side quota bookkeeping:
+ * Calls Gemini DIRECTLY from the browser. There is no server route any more —
+ * see the header of src/lib/ask/gemini.ts for why the API key is public and
+ * what that does and does not cost.
  *
- *   - Each request carries only the current question. The model never sees a
- *     previous turn, so answers cannot drift on accumulated context and one
- *     visitor's question can never leak into another's.
- *   - Nothing is persisted. Reloading the page is a clean slate.
- *   - The quota lives entirely on the server (src/lib/ask/budget.ts). Mirroring
- *     a counter here would only duplicate authority and let the two disagree —
- *     the island just asks, and handles being refused.
+ * Still stateless as far as the MODEL is concerned:
+ *   - Each call carries only the current question. The model never sees a
+ *     previous turn, so answers cannot drift on accumulated context.
+ *   - No conversation history is kept or persisted.
+ *
+ * The one thing that IS persisted is the quota counter, and only because it has
+ * nowhere else to live now: src/lib/ask/budget.ts keeps it in localStorage. It
+ * is a courtesy throttle against reload loops and chip-mashing, NOT a control —
+ * it is trivially bypassable and the module says so.
  */
 const AskAI: FunctionComponent<Props> = ({ locale }) => {
   const [q, setQ] = useState('');
@@ -97,54 +121,39 @@ const AskAI: FunctionComponent<Props> = ({ locale }) => {
         return;
       }
 
+      // Budget is spent only after validation, so a malformed or over-long
+      // question never costs the visitor one of their attempts.
+      const verdict = consume();
+      if (!verdict.allowed) {
+        degrade(question, 'exhausted');
+        return;
+      }
+
       setStatus('loading');
       setAnswer(t('ask.state.thinking', undefined, locale));
       setOrigin('default');
 
+      // `askGemini` never throws — every failure path comes back as a typed
+      // reason — but the corpus build and the budget write are ordinary code,
+      // so the whole thing still degrades rather than blanking the island.
       try {
-        const res = await fetch('/api/ask', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          // Only the current question. No history, by design.
-          body: JSON.stringify({ question, locale }),
-        });
-        const data = (await res.json().catch(() => null)) as
-          | { ok: true; answer: string }
-          | { ok: false; reason: string }
-          | null;
+        const result = await askGemini(question, locale, getKnowledgeContext(locale));
 
-        if (res.ok && data && data.ok) {
-          setAnswer(data.answer);
+        if (result.ok) {
+          setAnswer(result.answer);
           setOrigin('live');
           setStatus('answered');
           return;
         }
 
-        // 429 = the allowance for this visitor (or the day) is spent.
-        if (res.status === 429) {
-          degrade(question, 'exhausted');
-          return;
-        }
+        if (REFUNDABLE.has(result.reason)) refund();
 
-        if (res.status === 413) {
-          setAnswer(t('ask.error.too_long', undefined, locale));
-          setOrigin('preset');
-          setStatus('answered');
-          return;
-        }
-
-        // 503 = the server already refunded this attempt (Google throttled us,
-        // or the key is missing). Transient — say so and invite a retry.
-        if (res.status === 503) {
-          degrade(question, 'busy');
-          return;
-        }
-
-        // Upstream error, timeout, safety block, truncated answer — the visitor
-        // does not need the taxonomy, just a useful answer.
-        degrade(question, 'error');
+        // The visitor does not need the taxonomy, just a useful answer: a
+        // transient failure invites a retry, anything else reads as an error.
+        degrade(question, TRANSIENT.has(result.reason) ? 'busy' : 'error');
       } catch {
-        // Offline or the request never left the browser.
+        // Offline, or something in the call path threw unexpectedly.
+        refund();
         degrade(question, 'error');
       }
     },

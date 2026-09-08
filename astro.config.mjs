@@ -1,24 +1,23 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel/static';
 
 export default defineConfig({
   integrations: [preact()],
 
-  // 'hybrid' = todo se pre-renderiza estático por defecto, y una ruta opta por
-  // salir con `export const prerender = false`. Hoy la única que lo hace es
-  // src/pages/api/ask.ts, que necesita servidor para leer GEMINI_API_KEY sin
-  // exponerla al browser. El resto del sitio sigue siendo HTML estático, igual
-  // de rápido que antes.
-  output: 'hybrid',
-  adapter: vercel({
-    // Gemini 3.x razona antes de responder, así que una respuesta real tarda
-    // varios segundos. El default de Vercel Hobby son 10s, por debajo del
-    // TIMEOUT_MS de 20s en gemini.ts — sin esto Vercel mata la request antes
-    // de que nuestro propio timeout pueda degradar con elegancia.
-    maxDuration: 30,
-  }),
+  // Fully static. There is no SSR route left: the ask demo calls Gemini straight
+  // from the browser with PUBLIC_GEMINI_API_KEY, so nothing needs a server.
+  //
+  // WHY THE STATIC ADAPTER AND NOT THE SERVERLESS ONE: @astrojs/vercel@7's
+  // serverless adapter picks the function runtime from a hardcoded table that
+  // only knows Node 18 and 20 (see SUPPORTED_NODE_VERSIONS in
+  // dist/serverless/adapter.js). Vercel builds on Node 24, falls through to
+  // `return 'nodejs18.x'`, and Vercel no longer offers 18.x at all — the build
+  // succeeded and the DEPLOY failed. The static adapter never touches Node
+  // runtimes, so that whole failure mode is gone rather than patched.
+  output: 'static',
+  adapter: vercel(),
 
   i18n: {
     defaultLocale: 'es',

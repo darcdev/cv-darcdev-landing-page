@@ -1,54 +1,101 @@
 /**
- * Quota guard for the "ask" demo.
+ * Quota guard for the "ask" demo — CLIENT SIDE.
  *
- * The Gemini free tier is capped per minute and per day. A public endpoint with
- * no ceiling is a self-inflicted outage: one crawler burns the daily quota and
- * the demo is dead for every real visitor afterwards. So we spend the quota
- * deliberately — a few questions per visitor, a hard daily ceiling overall.
+ * READ THIS BEFORE TRUSTING IT: this is a courtesy throttle, not a security
+ * control. It runs in the visitor's own browser against their own localStorage,
+ * so anyone who wants to bypass it can — devtools, a private window, or just
+ * calling the Gemini endpoint directly with the key from the bundle.
  *
- * HONEST LIMITATION: this state lives in module memory. On serverless it is
- * per-instance and resets on cold starts, so concurrent instances each keep
- * their own counters — the effective ceiling is `MAX_GLOBAL_PER_DAY x
- * warm instances`, not a strict global cap. That is a deliberate trade-off:
- * it costs nothing, needs no KV/Redis, and it stops the realistic threat
- * (one client hammering one warm instance). If this ever needs to be a real
- * guarantee, move `globalDay` into durable storage (Vercel KV, Upstash,
- * Cloudflare KV) — the interface below does not have to change.
+ * It is still worth having, because it stops the realistic case rather than the
+ * adversarial one: an interested visitor clicking every suggestion chip, a
+ * double-submit, a reload loop. That is what actually burns a free-tier quota
+ * day to day.
+ *
+ * What was lost by moving off the server (deliberately, see gemini.ts header):
+ *   - a real global ceiling. `MAX_GLOBAL_PER_DAY` is now per-BROWSER, not per
+ *     site, so the true upstream ceiling is Google's own free-tier limit.
+ *   - IP-derived identity. There are no request headers here; the "client" is
+ *     whatever localStorage this browser has.
+ *
+ * If the demo ever needs a guarantee instead of a courtesy, the call has to go
+ * back behind a server route with durable storage (Vercel KV, Upstash). The
+ * interface below would not have to change.
  */
 
-/** Questions one client may ask per rolling window. Keep it small: the goal is
- *  a taste of the demo, not a free chatbot.
- *
- *  Not exported: the browser deliberately keeps no counter, so this number has
- *  exactly one owner. A mirrored copy in the island could only ever drift and
- *  start promising or denying questions the server disagrees with. */
+/** Questions one browser may ask per rolling window. Keep it small: the goal is
+ *  a taste of the demo, not a free chatbot. */
 const MAX_PER_CLIENT = 4;
-/** Rolling window for the per-client allowance. */
+/** Rolling window for the per-browser allowance. */
 const CLIENT_WINDOW_MS = 60 * 60 * 1000;
-/** Best-effort ceiling on upstream calls per UTC day, well under the free tier. */
+/** Best-effort per-browser ceiling per UTC day. */
 const MAX_GLOBAL_PER_DAY = 150;
 /** Cap on question length — long prompts cost tokens and are never real questions. */
 export const MAX_QUESTION_CHARS = 280;
 
-interface ClientState {
+const STORAGE_KEY = 'ask.budget.v1';
+
+interface Stored {
+  /** Attempts used in the current rolling window. */
   count: number;
-  /** Epoch ms when this client's window resets. */
+  /** Epoch ms when the rolling window resets. */
   resetAt: number;
+  /** UTC day key the daily counter belongs to. */
+  dayKey: string;
+  /** Attempts used today. */
+  dayCount: number;
 }
 
-const clients = new Map<string, ClientState>();
-let globalDay = { key: '', count: 0 };
-
-/** Stops the Map from growing without bound on a long-lived instance. */
-function sweep(now: number): void {
-  if (clients.size < 500) return;
-  for (const [id, state] of clients) {
-    if (state.resetAt <= now) clients.delete(id);
-  }
-}
+const empty = (now: number): Stored => ({
+  count: 0,
+  resetAt: now + CLIENT_WINDOW_MS,
+  dayKey: utcDayKey(now),
+  dayCount: 0,
+});
 
 function utcDayKey(now: number): string {
   return new Date(now).toISOString().slice(0, 10);
+}
+
+/**
+ * localStorage access is wrapped because it THROWS, not returns null, in a few
+ * real situations: Safari private mode with storage disabled, and any browser
+ * configured to block site data. A demo must not crash because a visitor
+ * hardened their browser — every failure here degrades to "no history kept",
+ * which just means the throttle is not enforced for them.
+ */
+function load(now: number): Stored {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return empty(now);
+    const parsed = JSON.parse(raw) as Partial<Stored>;
+    const state: Stored = {
+      count: typeof parsed.count === 'number' ? parsed.count : 0,
+      resetAt: typeof parsed.resetAt === 'number' ? parsed.resetAt : now + CLIENT_WINDOW_MS,
+      dayKey: typeof parsed.dayKey === 'string' ? parsed.dayKey : utcDayKey(now),
+      dayCount: typeof parsed.dayCount === 'number' ? parsed.dayCount : 0,
+    };
+    // Expire the rolling window and the day independently — a stale window must
+    // not also wipe today's count, and a new day must not grant a fresh window.
+    if (state.resetAt <= now) {
+      state.count = 0;
+      state.resetAt = now + CLIENT_WINDOW_MS;
+    }
+    if (state.dayKey !== utcDayKey(now)) {
+      state.dayKey = utcDayKey(now);
+      state.dayCount = 0;
+    }
+    return state;
+  } catch {
+    return empty(now);
+  }
+}
+
+function save(state: Stored): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Storage unavailable or full — the throttle simply does not persist.
+  }
 }
 
 export type BudgetVerdict =
@@ -56,16 +103,15 @@ export type BudgetVerdict =
   | { allowed: false; scope: 'client' | 'global'; retryAfterSec: number };
 
 /**
- * Consumes one unit of budget for `clientId`.
+ * Consumes one unit of budget for this browser.
  *
- * Call this only right before an upstream request — a rejected or cached
+ * Call this only right before an upstream request — a rejected or preset-matched
  * question should not cost the visitor an attempt.
  */
-export function consume(clientId: string, now: number = Date.now()): BudgetVerdict {
-  const dayKey = utcDayKey(now);
-  if (globalDay.key !== dayKey) globalDay = { key: dayKey, count: 0 };
+export function consume(now: number = Date.now()): BudgetVerdict {
+  const state = load(now);
 
-  if (globalDay.count >= MAX_GLOBAL_PER_DAY) {
+  if (state.dayCount >= MAX_GLOBAL_PER_DAY) {
     const midnight = Date.UTC(
       new Date(now).getUTCFullYear(),
       new Date(now).getUTCMonth(),
@@ -78,16 +124,8 @@ export function consume(clientId: string, now: number = Date.now()): BudgetVerdi
     };
   }
 
-  sweep(now);
-
-  const existing = clients.get(clientId);
-  const state =
-    existing && existing.resetAt > now
-      ? existing
-      : { count: 0, resetAt: now + CLIENT_WINDOW_MS };
-
   if (state.count >= MAX_PER_CLIENT) {
-    clients.set(clientId, state);
+    save(state);
     return {
       allowed: false,
       scope: 'client',
@@ -96,8 +134,8 @@ export function consume(clientId: string, now: number = Date.now()): BudgetVerdi
   }
 
   state.count += 1;
-  clients.set(clientId, state);
-  globalDay.count += 1;
+  state.dayCount += 1;
+  save(state);
 
   return { allowed: true, remaining: MAX_PER_CLIENT - state.count };
 }
@@ -107,40 +145,12 @@ export function consume(clientId: string, now: number = Date.now()): BudgetVerdi
  *
  * Called when the upstream call failed for a reason that is NOT the visitor's
  * fault — Google rate-limiting us, a timeout, a truncated answer. Without this
- * a visitor with 4 attempts could burn all four on our infrastructure problems
- * and never once see the demo work. The daily counter is refunded too, since
- * no useful generation was produced.
+ * a visitor with 4 attempts could burn all four on our problems and never once
+ * see the demo work.
  */
-export function refund(clientId: string, now: number = Date.now()): void {
-  const state = clients.get(clientId);
-  if (state && state.resetAt > now && state.count > 0) {
-    state.count -= 1;
-    clients.set(clientId, state);
-  }
-  if (globalDay.key === utcDayKey(now) && globalDay.count > 0) {
-    globalDay.count -= 1;
-  }
-}
-
-/**
- * Derives a stable-enough client id. `clientAddress` needs an adapter and
- * throws on some of them, so the proxy headers are the fallback.
- */
-export function clientIdFrom(
-  headers: Headers,
-  clientAddress: () => string | undefined,
-): string {
-  try {
-    const addr = clientAddress();
-    if (addr) return addr;
-  } catch {
-    // Adapter does not expose it — fall through to headers.
-  }
-  const forwarded = headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0]!.trim();
-  return (
-    headers.get('cf-connecting-ip') ??
-    headers.get('x-real-ip') ??
-    'unknown'
-  );
+export function refund(now: number = Date.now()): void {
+  const state = load(now);
+  if (state.count > 0) state.count -= 1;
+  if (state.dayCount > 0) state.dayCount -= 1;
+  save(state);
 }

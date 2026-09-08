@@ -2,6 +2,9 @@
   "name": "cv-landing-page",
   "type": "module",
   "version": "0.0.1",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && npm run i18n:check && npm run images:check && astro build",

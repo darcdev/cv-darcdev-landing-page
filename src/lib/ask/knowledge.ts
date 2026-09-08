@@ -12,9 +12,12 @@
  * is deliberately lossy: highlights and projects are capped, and long prose is
  * left out. If you add data here, keep an eye on `estimateTokens()`.
  *
- * Server-only module. Never import this from a client island: it is fine for
- * the data to be public (it all renders on the page anyway), but shipping it
- * twice would just bloat the browser bundle.
+ * SHIPS TO THE BROWSER. The ask island imports this directly now that Gemini is
+ * called client-side, so the corpus is in the JS bundle — sent twice, once as
+ * rendered HTML and once as this serialization. That is the accepted cost of
+ * dropping the server route; none of the data is private (it all renders on the
+ * page anyway), but the token-budget note above now doubles as a BUNDLE-size
+ * note. Keep the caps.
  */
 import { getProfile } from '../../data/profile';
 import { getExperiences } from '../../data/experience';

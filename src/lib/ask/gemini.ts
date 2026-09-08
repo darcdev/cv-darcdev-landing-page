@@ -8,7 +8,22 @@
  *      Cloudflare Workers, so the hosting decision stays reversible.
  *   3. The surface we need is one POST. An SDK buys nothing here.
  *
- * Server-only. The API key must never reach the browser.
+ * RUNS IN THE BROWSER, and the API key ships with it.
+ *
+ * This is a deliberate, informed trade-off — not an oversight. The key is a
+ * Gemini FREE-TIER key with no billing account linked, so the worst case is a
+ * `429 RESOURCE_EXHAUSTED` and the demo degrading to its curated presets. It
+ * cannot generate a bill. What it CAN cost:
+ *   - anyone may spend the daily quota, and the demo then shows presets to real
+ *     visitors until UTC midnight;
+ *   - the key is readable in the JS bundle, so restrict it in Google Cloud to
+ *     the Generative Language API ONLY (see .env.example);
+ *   - the grounding corpus and system instruction below are public. They were
+ *     already public — the whole corpus renders on the page — but a visitor can
+ *     now bypass them and call the model unconstrained with this key.
+ *
+ * If billing is ever enabled on that Cloud project, this decision has to be
+ * revisited the same day: move the call back behind a server route.
  */
 
 /**
@@ -53,8 +68,9 @@ const API_BASE = `https://generativelanguage.googleapis.com/${API_VERSION}/model
 const MAX_OUTPUT_TOKENS = 1200;
 
 /** Abort the upstream call rather than let a visitor stare at a spinner.
- *  Reasoning adds latency, so this is generous — but it must stay below the
- *  serverless function's own limit (see `maxDuration` in astro.config.mjs). */
+ *  Reasoning adds latency, so this is generous. No longer bounded by a
+ *  serverless `maxDuration` — the fetch is the visitor's own, so this timeout
+ *  is the only ceiling. */
 const TIMEOUT_MS = 20_000;
 
 /** The API returns a transient 503 "experiencing high demand" fairly often.
@@ -77,27 +93,27 @@ export type AskResult =
   | { ok: false; reason: AskFailure };
 
 /**
- * Reads a server-side env var across runtimes.
+ * Build-time env, read STATICALLY on purpose.
  *
- * `import.meta.env` is what Astro inlines at build time; `process.env` covers
- * values injected at runtime by Node-based hosts. `process` does NOT exist on
- * Cloudflare Workers, so it must be feature-detected rather than assumed —
- * touching it bare would be a ReferenceError there, not `undefined`.
+ * These must be written as literal `import.meta.env.PUBLIC_*` member accesses.
+ * Vite only substitutes the exact expression it can see at build time, so the
+ * previous dynamic `import.meta.env[name]` lookup is not safe in a client
+ * bundle — and `process.env` does not exist in a browser at all.
+ *
+ * The PUBLIC_ prefix is Astro's contract for "this ships to the browser". Here
+ * that is the intent; see the module header before removing it.
  */
-function readEnv(name: string): string | undefined {
-  const fromAstro = (import.meta.env as Record<string, string | undefined>)[name];
-  if (fromAstro) return fromAstro;
-  if (typeof process !== 'undefined' && process.env) return process.env[name];
-  return undefined;
-}
+const API_KEY = import.meta.env.PUBLIC_GEMINI_API_KEY as string | undefined;
+const MODEL = (import.meta.env.PUBLIC_GEMINI_MODEL as string | undefined) ?? DEFAULT_MODEL;
 
 /**
- * Server-side diagnostics.
+ * Diagnostics — now the visitor's browser console.
  *
- * The route deliberately collapses every upstream failure into one opaque
- * reason for the visitor. That is right for the visitor and useless for us —
- * a bare 502 in the dev log gives you nothing to debug. So the real upstream
- * status and message are logged here, server-side only.
+ * The UI deliberately collapses every upstream failure into one opaque reason,
+ * which is right for the visitor and useless for debugging. The real upstream
+ * status still gets logged so a broken key or a deprecated model is one glance
+ * away in devtools. Nothing secret goes through here: the key is never logged,
+ * only the status and Google's own message.
  */
 function logFailure(detail: string): void {
   console.error(`[ask] ${detail}`);
@@ -141,13 +157,13 @@ export async function askGemini(
   locale: string,
   context: string,
 ): Promise<AskResult> {
-  const apiKey = readEnv('GEMINI_API_KEY');
+  const apiKey = API_KEY;
   if (!apiKey) {
-    logFailure('GEMINI_API_KEY is not set');
+    logFailure('PUBLIC_GEMINI_API_KEY is not set');
     return { ok: false, reason: 'no-key' };
   }
 
-  const model = readEnv('GEMINI_MODEL') ?? DEFAULT_MODEL;
+  const model = MODEL;
 
   const body = JSON.stringify({
     systemInstruction: {
